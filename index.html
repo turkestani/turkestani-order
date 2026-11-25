@@ -7,35 +7,39 @@
 <link rel="icon" href="logo.png">
 <meta name="description" content="اطلب رز بخاري ودجاج شواية على الفحم ورز قابلي من التركستاني للبخاري في المجمعة">
 <style>
-:root{--bg:#faf6ef;--card:#fff;--ink:#2b2118;--mut:#6f6254;--brand:#9c2f1a;--brand-ink:#fff;--line:#e6dccd;--ok:#1f7a3d}
-@media (prefers-color-scheme:dark){:root{--bg:#1c1713;--card:#272019;--ink:#f3eadf;--mut:#b8a998;--brand:#d4553b;--brand-ink:#fff;--line:#3a3128;--ok:#4cc26f}}
+:root{--bg:#faf6ef;--card:#fff;--ink:#2b2118;--mut:#6f6254;--brand:#9c2f1a;--brand-ink:#fff;--line:#e6dccd;--ok:#1f7a3d;--bad:#c0392b}
+@media (prefers-color-scheme:dark){:root{--bg:#1c1713;--card:#272019;--ink:#f3eadf;--mut:#b8a998;--brand:#d4553b;--brand-ink:#fff;--line:#3a3128;--ok:#4cc26f;--bad:#ff7b6b}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;padding-bottom:90px}
-header{padding:16px;text-align:center}
+header{padding:16px 16px 8px;text-align:center;position:relative}
+#lang{position:absolute;inset-block-start:12px;inset-inline-end:12px;padding:6px 12px;border:1px solid var(--line);border-radius:20px;background:var(--card);color:var(--ink);font-size:14px}
 h1{margin:0;font-size:22px}
 header p{margin:4px 0 0;color:var(--mut);font-size:14px}
-#top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+#info{margin:8px auto 0;max-width:640px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:14px}
+#status{margin:8px auto 0;max-width:640px;padding:8px 12px;border-radius:10px;font-weight:600;font-size:14px}
+#status.open{background:rgba(31,122,61,.15);color:var(--ok)}
+#status.closed{background:rgba(192,57,43,.15);color:var(--bad)}
+#top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-top:8px}
 #q{display:block;width:calc(100% - 32px);max-width:608px;margin:8px auto 0}
 nav{display:flex;gap:8px;overflow-x:auto;padding:8px 16px}
-.hide,[hidden]{display:none!important}
-.item img{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none;background:#fff}
-.item img.ph{object-fit:contain;padding:6px;opacity:.7}
-#empty{text-align:center;color:var(--mut);padding:24px}
-#dist{margin-top:8px;font-size:14px}
-#dist.bad{color:#c0392b;font-weight:600}
 nav a{flex:none;padding:8px 14px;border:1px solid var(--line);border-radius:20px;color:var(--ink);text-decoration:none;background:var(--card);font-size:15px}
 main{max-width:640px;margin:0 auto;padding:0 16px}
 section{scroll-margin-top:120px}
 h2{font-size:18px;margin:22px 0 8px}
 .note{color:var(--mut);font-size:13px;margin:-4px 0 8px}
-.item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
-.item .n{flex:1}
+.hide,[hidden]{display:none!important}
+.item{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.item img{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none;background:#fff}
+.item img.ph{object-fit:contain;padding:6px;opacity:.7}
+.item .n{flex:1;min-width:0}
 .item .p{color:var(--mut);font-size:14px}
+.inote{flex:1 1 100%;padding:8px 10px;font-size:14px}
 .qty{display:flex;align-items:center;gap:6px}
 button{font:inherit;cursor:pointer}
 .qty button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:20px}
 .qty button.add{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
 .qty span{min-width:20px;text-align:center;font-weight:600}
+#empty{text-align:center;color:var(--mut);padding:24px}
 #bar{position:fixed;inset-inline:0;bottom:0;padding:12px 16px;background:var(--card);border-top:1px solid var(--line);display:none}
 #bar button{width:100%;max-width:640px;margin:0 auto;display:block;padding:14px;border:0;border-radius:12px;background:var(--brand);color:var(--brand-ink);font-size:17px;font-weight:600}
 dialog{width:min(560px,94vw);max-height:92vh;border:0;border-radius:16px;padding:16px;background:var(--card);color:var(--ink)}
@@ -48,72 +52,110 @@ input,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radiu
 .seg span{display:block;padding:12px;text-align:center;border:1px solid var(--line);border-radius:10px}
 .seg input:checked+span{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
 .seg input:focus-visible+span{outline:3px solid var(--ink)}
-.line{display:flex;justify-content:space-between;padding:4px 0}
+.line{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0}
+.line .lq{display:flex;align-items:center;gap:6px}
+.line .lq button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:18px;line-height:1}
+.line small{display:block;color:var(--mut)}
 .total{font-weight:700;font-size:18px;border-top:1px solid var(--line);margin-top:8px;padding-top:8px}
-.err{color:#c0392b;font-size:14px;min-height:20px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.chips button{padding:8px 12px;border:1px dashed var(--brand);border-radius:20px;background:none;color:var(--ink);font-size:14px}
+.err{color:var(--bad);font-size:14px;min-height:20px}
 .row{display:flex;gap:8px;margin-top:12px}
-.row button{flex:1;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:16px}
-.row .go{background:var(--ok);color:#fff;border-color:var(--ok);font-weight:600}
+.row button,.btnlink{flex:1;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:16px;text-align:center;text-decoration:none;display:block}
+.row .go,.btnlink.go{background:var(--ok);color:#fff;border-color:var(--ok);font-weight:600}
+.row .go:disabled{opacity:.5;cursor:not-allowed}
 .loc{margin-top:6px;padding:8px 12px;border:1px dashed var(--line);border-radius:10px;background:none;color:var(--ink);width:100%}
+#dist{margin-top:8px;font-size:14px}
+#dist.bad{color:var(--bad);font-weight:600}
 footer{text-align:center;color:var(--mut);font-size:13px;padding:24px 16px}
+footer .contact{display:flex;justify-content:center;gap:12px;margin-bottom:12px}
+footer .contact a{padding:10px 16px;border:1px solid var(--line);border-radius:20px;background:var(--card);color:var(--ink);text-decoration:none;font-size:15px}
 </style>
 </head>
 <body>
 <header>
-  <img src="logo.png" alt="شعار التركستاني للبخاري" width="96" height="96" style="border-radius:16px;background:#fff">
-  <h1>التركستاني للبخاري</h1>
-  <p>المجمعة · طريق الملك فهد · الأسعار شاملة القيمة المضافة</p>
+  <button id="lang" type="button">EN</button>
+  <img src="logo.png" alt="" width="96" height="96" style="border-radius:16px;background:#fff">
+  <h1 data-t="name"></h1>
+  <p data-t="tagline"></p>
+  <div id="status" hidden></div>
+  <div id="info"></div>
 </header>
 <div id="top">
-  <input id="q" type="search" placeholder="ابحث عن صنف…" aria-label="ابحث عن صنف" autocomplete="off">
+  <input id="q" type="search" autocomplete="off">
   <nav id="nav"></nav>
 </div>
 <main id="menu"></main>
-<p id="empty" class="hide">ما لقينا صنف بهذا الاسم.</p>
-<footer>الدفع كاش عند الاستلام · يتم تأكيد الطلب عبر واتساب</footer>
+<p id="empty" class="hide" data-t="noResults"></p>
+<footer>
+  <div class="contact">
+    <a id="call" href="tel:+966164313396" data-t="call"></a>
+    <a id="map" href="https://maps.google.com/?q=25.9088261,45.3480399" target="_blank" rel="noopener" data-t="map"></a>
+  </div>
+  <div data-t="footer"></div>
+</footer>
 <div id="bar"><button id="open"></button></div>
 
 <dialog id="dlg">
   <form method="dialog" id="form" novalidate>
-    <h2 style="margin-top:0">مراجعة الطلب</h2>
-    <div id="lines"></div>
-    <div class="line"><span>مجموع الأصناف</span><span id="sub"></span></div>
-    <div class="line" id="feeLine"><span id="feeLbl">رسوم التوصيل</span><span id="fee"></span></div>
-    <div class="line total"><span>الإجمالي</span><span id="tot"></span></div>
+    <div id="formBody">
+      <h2 style="margin-top:0" data-t="review"></h2>
+      <div id="lines"></div>
+      <div id="upBox"><p class="note" data-t="upTitle"></p><div class="chips" id="chips"></div></div>
+      <div class="line"><span data-t="sub"></span><span id="sub"></span></div>
+      <div class="line" id="feeLine"><span data-t="fee"></span><span id="fee"></span></div>
+      <div class="line total"><span data-t="total"></span><span id="tot"></span></div>
+      <p class="note" id="minNote" hidden></p>
 
-    <label>طريقة الاستلام</label>
-    <div class="seg">
-      <label><input type="radio" name="kind" value="توصيل" checked><span>توصيل</span></label>
-      <label><input type="radio" name="kind" value="استلام من المطعم"><span>استلام من المطعم</span></label>
+      <label data-t="kind"></label>
+      <div class="seg">
+        <label><input type="radio" name="kind" value="توصيل" checked><span data-t="deliv"></span></label>
+        <label><input type="radio" name="kind" value="استلام من المطعم"><span data-t="pickup"></span></label>
+      </div>
+
+      <label for="nm" data-t="nameL"></label>
+      <input id="nm" autocomplete="name">
+      <label for="ph" data-t="phoneL"></label>
+      <input id="ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xxxxxxxx">
+      <div id="addrBox">
+        <label for="ad" data-t="addrL"></label>
+        <textarea id="ad" rows="2"></textarea>
+        <button type="button" class="loc" id="loc" data-t="locBtn"></button>
+        <div id="dist" role="status"></div>
+      </div>
+      <label for="nt" data-t="noteL"></label>
+      <input id="nt" data-tp="notePh">
+
+      <div class="err" id="err" role="alert"></div>
+      <div class="row">
+        <button type="button" id="back" data-t="back"></button>
+        <button type="button" class="go" id="send" data-t="send"></button>
+      </div>
     </div>
-
-    <label for="nm">الاسم</label>
-    <input id="nm" autocomplete="name">
-    <label for="ph">رقم الجوال</label>
-    <input id="ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xxxxxxxx">
-    <div id="addrBox">
-      <label for="ad">العنوان (الحي والشارع وأقرب معلم)</label>
-      <textarea id="ad" rows="2"></textarea>
-      <button type="button" class="loc" id="loc">📍 تحديد موقعي لحساب رسوم التوصيل (مطلوب)</button>
-      <div id="dist" role="status"></div>
-    </div>
-    <label for="nt">ملاحظات (اختياري)</label>
-    <input id="nt" placeholder="مثال: بدون ثوم">
-
-    <div class="err" id="err" role="alert"></div>
-    <div class="row">
-      <button type="button" id="back">رجوع</button>
-      <button type="button" class="go" id="send">إرسال الطلب عبر واتساب</button>
+    <div id="done" hidden>
+      <h2 style="margin-top:0" data-t="doneH"></h2>
+      <p data-t="doneP"></p>
+      <a id="wa" class="btnlink go" target="_blank" rel="noopener" data-t="doneOpen"></a>
+      <div class="row"><button type="button" id="again" data-t="again"></button></div>
     </div>
   </form>
 </dialog>
 
 <script>
+// ===== الإعدادات (عدّلها من هنا) =====
 // ponytail: قائمة الطعام والرقم هنا فقط. عدّل الأسعار من هذا الملف مباشرة.
-const WHATSAPP = "966539403811"; // رقم واتساب المندوب بصيغة دولية بدون + (تأكد منه)
-// لإخفاء أصناف: اكتب أسماءها هنا كما هي في القائمة، مثال: const HIDE = ["شوربة", "خبز"];
-// ولإرجاعها امسح اسمها من القائمة. القسم يختفي تلقائيًا لو أُخفيت كل أصنافه.
+const WHATSAPP = "966539403811"; // رقم واتساب المندوب بصيغة دولية بدون +
+// لإخفاء أصناف: اكتب أسماءها كما هي في القائمة، مثال: const HIDE = ["شوربة", "خبز"];
 const HIDE = [];
+// ساعات العمل بتوقيت السعودية. null = بدون تحقق. مثال: { open: "11:00", close: "00:30" } (يدعم الإغلاق بعد منتصف الليل)
+const HOURS = null;
+// أقل مجموع أصناف للتوصيل بالريال. 0 = بدون حد أدنى.
+const MIN_ORDER = 0;
+// لتتبع الزيارات والنقرات: سجّل مجانًا في goatcounter.com واكتب اسم موقعك هنا، مثال: "turkestani". فارغ = بدون تتبع.
+const GOATCOUNTER = "";
+// أصناف تُقترح عند مراجعة الطلب (بأسمائها في القائمة)
+const UPSELL = ["حمص", "سلطة خضراء", "بيبسي (علبة)", "ماء صغير"];
+
 const MENU = [
   ["الشواية", "مع الرز أو سادة", [
     ["حبة دجاج شواية مع الرز",42],["نص دجاج شواية مع الرز",21],["ربع دجاج شواية مع الرز",12],
@@ -149,27 +191,121 @@ const MENU = [
 
 const IMG = {"حبة دجاج شواية مع الرز":"p49","نص دجاج شواية مع الرز":"p48","ربع دجاج شواية مع الرز":"p47","حبة دجاج شواية سادة":"p46","نص دجاج شواية سادة":"p45","ربع دجاج شواية سادة":"p44","حبة دجاج على الفحم مع الرز":"p55","نص دجاج على الفحم مع الرز":"p54","ربع دجاج على الفحم مع الرز":"p64","حبة دجاج على الفحم سادة":"p53","نص دجاج على الفحم سادة":"p52","ربع دجاج على الفحم سادة":"p94","حبة دجاج مضغوط":"p51","نص دجاج مضغوط":"p50","نفر كباب لحم (3 أسياخ)":"p43","نفر كباب دجاج (3 أسياخ)":"p42","نفر شيش طاووق (3 أسياخ)":"p41","نفر مشوي مشكل (3 أسياخ)":"p40","نفر رز بخاري":"p87","نفر رز شعبي":"p88","نفر مضغوط حاشي":"p89","نفر كبسة حاشي":"p91","نصف كبسة حاشي":"p90","نفر قابلي لحم":"p93","نصف نفر قابلي لحم":"p92","سلطة لبن خيار":"p69","سلطة خضراء":"p72","حمص":"p74","متبل":"p73","طحينة":"p75","تبولة":"p71","سلطة ملفوف":"p77","سلطة روسي":"p76","مقبلات مشكل":"p70","خضار مشكل (صغير)":"p36","خضار مشكل (كبير)":"p29","مصقعة (صغير)":"p35","مصقعة (كبير)":"p27","ملوخية (صغير)":"p25","ملوخية (كبير)":"p30","بامية (صغير)":"p34","بامية (كبير)":"p28","بطاطس دجاج (صغير)":"p33","بطاطس دجاج (كبير)":"p26","شوربة":"p31","مكرونة":"p32","لبن صغير":"p6","لبن 360 مل":"p19","لبن وسط":"p5","زبادي":"p3","ماء صغير":"p2","ماء كبير":"p1","كريم كراميل":"p78","جيلي":"p79","مهلبية":"p82","بيبسي (علبة)":"p12","بيبسي دايت (علبة)":"p7","ديو (علبة)":"p9","سفن اب (علبة)":"p10","سفن اب دايت (علبة)":"p18","حمضيات (علبة)":"p11","برتقال (علبة)":"p8","بيبسي (لتر)":"p17","ديو (لتر)":"p14","سفن اب (لتر)":"p15","حمضيات (لتر)":"p16","بيبسي (عائلي)":"p13","ديو (عائلي)":"p22","سفن اب (عائلي)":"p23","حمضيات (عائلي)":"p24"};
 
-const $ = id => document.getElementById(id);
-const cart = {}; // "قسم|اسم" -> {name, price, q}
-const fmt = n => (Math.round(n * 100) / 100).toString().replace(/\.0+$/, "") + " ر.س";
-const total = c => Object.values(c).reduce((s, i) => s + i.price * i.q, 0);
+// ===== الأسماء بالإنجليزية (من قائمة نظامكم المطبوعة، مع تصحيح الإملاء) =====
+const EN = {
+  "حبة دجاج شواية مع الرز": "Full Grilled Chicken with Rice", "نص دجاج شواية مع الرز": "Half Grilled Chicken with Rice", "ربع دجاج شواية مع الرز": "Quarter Grilled Chicken with Rice",
+  "حبة دجاج شواية سادة": "Full Grilled Chicken (plain)", "نص دجاج شواية سادة": "Half Grilled Chicken (plain)", "ربع دجاج شواية سادة": "Quarter Grilled Chicken (plain)",
+  "حبة دجاج على الفحم مع الرز": "Full Barbecue Chicken with Rice", "نص دجاج على الفحم مع الرز": "Half Barbecue Chicken with Rice", "ربع دجاج على الفحم مع الرز": "Quarter Barbecue Chicken with Rice",
+  "حبة دجاج على الفحم سادة": "Full Barbecue Chicken (plain)", "نص دجاج على الفحم سادة": "Half Barbecue Chicken (plain)", "ربع دجاج على الفحم سادة": "Quarter Barbecue Chicken (plain)",
+  "حبة دجاج مضغوط": "Full Steamed Chicken with Rice", "نص دجاج مضغوط": "Half Steamed Chicken with Rice",
+  "نفر كباب لحم (3 أسياخ)": "Meat Kebab – Nefer (3 skewers)", "نفر كباب دجاج (3 أسياخ)": "Chicken Kebab – Nefer (3 skewers)",
+  "نفر شيش طاووق (3 أسياخ)": "Shish Tawook – Nefer (3 skewers)", "نفر مشوي مشكل (3 أسياخ)": "Mixed Grill – Nefer (3 skewers)",
+  "نفر رز بخاري": "Bukhari Rice (one plate)", "نفر رز شعبي": "White Rice (one plate)",
+  "نفر مضغوط حاشي": "Camel Meat Steamed with Rice (full)", "نفر كبسة حاشي": "Camel Meat Kabsa (full)", "نصف كبسة حاشي": "Camel Meat Kabsa (half)",
+  "نفر قابلي لحم": "Qabli Palaw with Meat (full)", "نصف نفر قابلي لحم": "Qabli Palaw with Meat (half)",
+  "سلطة لبن خيار": "Cucumber Yoghurt Salad", "سلطة خضراء": "Green Salad", "حمص": "Hummus", "متبل": "Mutabal", "طحينة": "Tahini",
+  "تبولة": "Tabbouleh", "سلطة ملفوف": "Cabbage Salad", "سلطة روسي": "Russian Salad", "مقبلات مشكل": "Mixed Appetizers",
+  "خضار مشكل (صغير)": "Mixed Vegetables (small)", "خضار مشكل (كبير)": "Mixed Vegetables (large)", "مصقعة (صغير)": "Moussaka (small)", "مصقعة (كبير)": "Moussaka (large)",
+  "ملوخية (صغير)": "Molokhia (small)", "ملوخية (كبير)": "Molokhia (large)", "بامية (صغير)": "Okra (small)", "بامية (كبير)": "Okra (large)",
+  "بطاطس دجاج (صغير)": "Potato with Chicken (small)", "بطاطس دجاج (كبير)": "Potato with Chicken (large)", "شوربة": "Soup", "مكرونة": "Pasta", "خبز": "Bread",
+  "صحن دائري صغير": "Round Plate (small)", "صحن دائري وسط": "Round Plate (medium)", "صحن دائري كبير": "Round Plate (large)",
+  "كريم كراميل": "Crème Caramel", "جيلي": "Jelly", "مهلبية": "Muhallabia",
+  "بيبسي (علبة)": "Pepsi (can)", "بيبسي دايت (علبة)": "Diet Pepsi (can)", "ديو (علبة)": "Mountain Dew (can)", "سفن اب (علبة)": "7Up (can)", "سفن اب دايت (علبة)": "Diet 7Up (can)", "حمضيات (علبة)": "Citrus (can)", "برتقال (علبة)": "Orange (can)",
+  "بيبسي (لتر)": "Pepsi (1 L)", "ديو (لتر)": "Mountain Dew (1 L)", "سفن اب (لتر)": "7Up (1 L)", "حمضيات (لتر)": "Citrus (1 L)",
+  "بيبسي (عائلي)": "Pepsi (family)", "ديو (عائلي)": "Mountain Dew (family)", "سفن اب (عائلي)": "7Up (family)", "حمضيات (عائلي)": "Citrus (family)",
+  "لبن صغير": "Laban (small)", "لبن 360 مل": "Laban (360 ml)", "لبن وسط": "Laban (medium)", "لبن كبير": "Laban (large)", "زبادي": "Yoghurt",
+  "ماء صغير": "Water (small)", "ماء كبير": "Water (large)"
+};
+const SEC_EN = { "الشواية": "Grilled Chicken", "الفحم": "Barbecue Chicken", "المضغوط": "Steamed Chicken", "المشاوي": "Grills", "الرز": "Rice", "اللحوم": "Meat", "المقبلات": "Appetizers", "الإيدامات": "Sides & Stews", "الصحون": "Plates", "الحلويات": "Desserts", "المشروبات": "Drinks" };
+const HINT_EN = { "مع الرز أو سادة": "With rice or plain", "صغير / كبير": "Small / Large", "علبة 2.5 · لتر 5 · عائلي 9 ر.س": "Can 2.5 · 1 L 5 · Family 9 SAR" };
 
-// ---- التوصيل: الرسوم حسب المسافة من المطعم ----
-// ponytail: مسافة بخط مستقيم (المسافة على الطريق أطول قليلًا). عدّل الشرائح هنا، أو استخدم خدمة مسارات لاحقًا.
+// ===== التوصيل: الرسوم حسب المسافة على الطريق =====
 const REST = { lat: 25.9088261, lng: 45.3480399 };
 const TIERS = [[3, 5], [6, 10], [12, 15]]; // [أقصى مسافة بالكم، الرسوم بالريال]
 const MAX_KM = 12;
 const FALLBACK = 1.4; // لو تعذرت خدمة المسارات: المسافة المقدرة = الخط المستقيم × 1.4 (قِيس الفرق 1.3–1.45)
+
+// ===== النصوص =====
+const UI = {
+  ar: {
+    name: "التركستاني للبخاري", tagline: "المجمعة · طريق الملك فهد · الأسعار شاملة القيمة المضافة",
+    cur: "ر.س", search: "ابحث عن صنف…", noResults: "ما لقينا صنف بهذا الاسم.",
+    review: "مراجعة الطلب", reviewBtn: (n, tot) => `مراجعة الطلب (${n}) · ${tot}`,
+    upTitle: "تبي تضيف؟", sub: "مجموع الأصناف", fee: "رسوم التوصيل", total: "الإجمالي",
+    kind: "طريقة الاستلام", deliv: "توصيل", pickup: "استلام من المطعم",
+    nameL: "الاسم", phoneL: "رقم الجوال", addrL: "العنوان (الحي والشارع وأقرب معلم)",
+    locBtn: "📍 تحديد موقعي لحساب رسوم التوصيل (مطلوب)", noteL: "ملاحظات (اختياري)", notePh: "مثال: بدون ثوم",
+    itemNote: "ملاحظة لهذا الصنف (مثال: بدون ثوم)", back: "رجوع", send: "إرسال الطلب عبر واتساب",
+    doneH: "تم تجهيز طلبك ✅", doneP: "اضغط «إرسال» داخل واتساب لإتمام الطلب. سنؤكد لك الطلب ووقت الوصول هناك.",
+    doneOpen: "فتح واتساب مرة ثانية", again: "طلب جديد",
+    call: "📞 اتصل بنا", map: "📍 موقعنا", footer: "الدفع كاش عند الاستلام · يتم تأكيد الطلب عبر واتساب",
+    openNow: c => `مفتوح الآن · نقفل ${c}`, closedNow: o => `مغلق الآن · نفتح الساعة ${o}`,
+    delivInfo: s => `التوصيل: ${s}`, tier: (m, f) => `حتى ${m} كم ${f}`, beyond: m => `ولا يتوفر أكثر من ${m} كم`,
+    minOrder: m => `الحد الأدنى لطلب التوصيل ${m}`,
+    eName: "اكتب اسمك.", ePhone: "رقم الجوال غير صحيح (مثال: 0501234567).",
+    eLoc: "اضغط «تحديد موقعي» لحساب رسوم التوصيل.", eFar: m => `التوصيل غير متاح لموقعك (أكثر من ${m} كم). اختر الاستلام من المطعم.`,
+    eClosed: "المطعم مغلق الآن، حاول في وقت العمل.", eMin: m => `الحد الأدنى لطلب التوصيل ${m}.`,
+    locBusy: "جاري تحديد موقعك…", locRoad: "جاري حساب المسافة على الطريق…", noGeo: "متصفحك لا يدعم تحديد الموقع. اختر الاستلام من المطعم.",
+    geoFail: "ما قدرنا نحدد موقعك. فعّل خدمة الموقع للمتصفح وحاول مرة ثانية، أو اختر الاستلام من المطعم.",
+    distOk: (how, km, fee) => `المسافة ${how} حوالي ${km} كم · رسوم التوصيل ${fee}`,
+    distFar: (m, how, km) => `عذرًا، التوصيل غير متاح لأكثر من ${m} كم (المسافة ${how} حوالي ${km} كم). تقدر تختار الاستلام من المطعم.`,
+    onRoad: "على الطريق", estimated: "التقديرية", needLoc: "حدد موقعك", na: "غير متاح"
+  },
+  en: {
+    name: "Al-Turkestani Bukhari", tagline: "Al-Majma'ah · King Fahd Rd · Prices include VAT",
+    cur: "SAR", search: "Search the menu…", noResults: "No items match your search.",
+    review: "Review order", reviewBtn: (n, tot) => `Review order (${n}) · ${tot}`,
+    upTitle: "Add something?", sub: "Items total", fee: "Delivery fee", total: "Total",
+    kind: "How do you want it?", deliv: "Delivery", pickup: "Pick up",
+    nameL: "Name", phoneL: "Mobile number", addrL: "Address (district, street, nearest landmark)",
+    locBtn: "📍 Share my location to calculate delivery (required)", noteL: "Notes (optional)", notePh: "e.g. no garlic",
+    itemNote: "Note for this item (e.g. no garlic)", back: "Back", send: "Send order via WhatsApp",
+    doneH: "Your order is ready ✅", doneP: "Press “Send” inside WhatsApp to place the order. We'll confirm the order and arrival time there.",
+    doneOpen: "Open WhatsApp again", again: "New order",
+    call: "📞 Call us", map: "📍 Our location", footer: "Cash on delivery · Order is confirmed via WhatsApp",
+    openNow: c => `Open now · closes ${c}`, closedNow: o => `Closed now · opens at ${o}`,
+    delivInfo: s => `Delivery: ${s}`, tier: (m, f) => `up to ${m} km ${f}`, beyond: m => `not available beyond ${m} km`,
+    minOrder: m => `Minimum delivery order ${m}`,
+    eName: "Please enter your name.", ePhone: "Invalid mobile number (e.g. 0501234567).",
+    eLoc: "Press “Share my location” to calculate the delivery fee.", eFar: m => `Delivery isn't available to your location (over ${m} km). Choose pick up.`,
+    eClosed: "We're closed right now. Please try during opening hours.", eMin: m => `Minimum delivery order is ${m}.`,
+    locBusy: "Finding your location…", locRoad: "Calculating the road distance…", noGeo: "Your browser doesn't support location. Choose pick up.",
+    geoFail: "We couldn't get your location. Enable location for your browser and try again, or choose pick up.",
+    distOk: (how, km, fee) => `${how} distance about ${km} km · delivery fee ${fee}`,
+    distFar: (m, how, km) => `Sorry, delivery isn't available beyond ${m} km (${how} distance about ${km} km). You can choose pick up.`,
+    onRoad: "Road", estimated: "Estimated", needLoc: "Share location", na: "Not available"
+  }
+};
+let lang = "ar";
+try { lang = localStorage.getItem("ord_lang") === "en" ? "en" : "ar"; } catch (e) {}
+const t = k => UI[lang][k];
+const nm = n => (lang === "en" && EN[n]) || n;
+const $ = id => document.getElementById(id);
+const norm = s => s.replace(/[ً-ٰٟـ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").toLowerCase();
+const fmt = n => (Math.round(n * 100) / 100).toString().replace(/\.0+$/, "") + " " + t("cur");
+
+// ===== منطق نقي (يُختبر) =====
+const cart = {}; // "قسم|اسم" -> {name, price, q, note}
+const total = c => Object.values(c).reduce((s, i) => s + i.price * i.q, 0);
 const toRad = d => d * Math.PI / 180;
 function distKm(a, b) {
   const h = Math.sin(toRad(b.lat - a.lat) / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(toRad(b.lng - a.lng) / 2) ** 2;
   return 6371 * 2 * Math.asin(Math.sqrt(h));
 }
-const feeFor = km => { const t = TIERS.find(([max]) => km <= max); return t ? t[1] : null; };
-const norm = s => s.replace(/[ً-ٰٟـ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").toLowerCase();
-
-function buildMessage(c, f) {
-  const lines = Object.values(c).filter(i => i.q).map(i => `${i.q} × ${i.name} = ${fmt(i.price * i.q)}`);
+const feeFor = km => { const x = TIERS.find(([max]) => km <= max); return x ? x[1] : null; };
+const hm = s => { const [h, m] = s.split(":").map(Number); return h * 60 + m; };
+function openAt(h, n) { // h = {open, close} أو null
+  if (!h) return true;
+  const o = hm(h.open), c = hm(h.close);
+  return o <= c ? n >= o && n < c : n >= o || n < c;
+}
+const nowMin = () => {
+  const p = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Riyadh", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date());
+  return (+p.find(x => x.type === "hour").value % 24) * 60 + +p.find(x => x.type === "minute").value;
+};
+const fmtT = s => { let [h, m] = s.split(":").map(Number); const pm = h >= 12; h = h % 12 || 12; return `${h}:${String(m).padStart(2, "0")} ${lang === "ar" ? (pm ? "م" : "ص") : (pm ? "PM" : "AM")}`; };
+function buildMessage(c, f) { // الرسالة دائمًا بالعربية للمطعم والمندوب
+  const lines = Object.values(c).filter(i => i.q).map(i => `${i.q} × ${i.name} = ${fmtAr(i.price * i.q)}` + (i.note ? ` (ملاحظة: ${i.note})` : ""));
   const del = f.kind === "توصيل", sub = total(c), fee = del ? f.fee : 0;
   return [
     `طلب جديد #${f.id}`,
@@ -181,51 +317,73 @@ function buildMessage(c, f) {
     "-----",
     ...lines,
     "-----",
-    `مجموع الأصناف: ${fmt(sub)}`,
-    del ? `رسوم التوصيل: ${fmt(fee)} (المسافة ${f.km} كم ${f.road ? "على الطريق" : "تقديرية"})` : null,
-    `الإجمالي: ${fmt(sub + fee)} (شامل الضريبة)`,
+    `مجموع الأصناف: ${fmtAr(sub)}`,
+    del ? `رسوم التوصيل: ${fmtAr(fee)} (المسافة ${f.km} كم ${f.road ? "على الطريق" : "تقديرية"})` : null,
+    `الإجمالي: ${fmtAr(sub + fee)} (شامل الضريبة)`,
     "الدفع: كاش عند الاستلام",
     f.note ? `ملاحظات: ${f.note}` : null,
   ].filter(Boolean).join("\n");
 }
+const fmtAr = n => (Math.round(n * 100) / 100).toString().replace(/\.0+$/, "") + " ر.س";
 
-// ---- رسم القائمة ----
-MENU.forEach(([title, hint, items], s) => {
-  items = items.filter(([n]) => !HIDE.includes(n));
-  if (!items.length) return;
-  const a = document.createElement("a"); a.href = "#s" + s; a.textContent = title; $("nav").append(a);
-  const sec = document.createElement("section"); sec.id = "s" + s; sec.dataset.s = norm(title);
-  sec.innerHTML = `<h2></h2>${hint ? '<p class="note"></p>' : ""}`;
-  sec.querySelector("h2").textContent = title;
-  if (hint) sec.querySelector(".note").textContent = hint;
-  items.forEach(([name, price]) => {
-    const key = s + "|" + name;
-    const row = document.createElement("div"); row.className = "item"; row.dataset.s = norm(name);
-    row.innerHTML = `<div class="n"></div><div class="qty"><button type="button" aria-label="إزالة" hidden>−</button><span hidden>0</span><button type="button" class="add" aria-label="إضافة">+</button></div>`;
-    row.querySelector(".n").innerHTML = `<div></div><div class="p">${fmt(price)}</div>`;
-    row.querySelector(".n div").textContent = name;
-    const img = document.createElement("img"); img.loading = "lazy"; img.width = img.height = 64;
-    if (IMG[name]) { img.src = IMG[name] + ".jpg"; img.alt = name; } else { img.src = "logo.png"; img.alt = ""; img.className = "ph"; }
-    row.prepend(img);
-    const [minus, q, plus] = [row.querySelector("button"), row.querySelector("span"), row.querySelector(".add")];
-    const set = n => {
-      if (n > 0) cart[key] = { name, price, q: n }; else delete cart[key];
-      q.textContent = n; minus.hidden = q.hidden = n === 0; minus.setAttribute("aria-label", "إزالة " + name); plus.setAttribute("aria-label", "إضافة " + name);
-      refresh();
-    };
-    plus.onclick = () => set((cart[key]?.q || 0) + 1);
-    minus.onclick = () => set((cart[key]?.q || 0) - 1);
-    sec.append(row);
+// ===== حفظ محلي (سلة + بيانات العميل) =====
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+};
+const saveCart = () => Object.keys(cart).length ? store.set("ord_cart", { t: Date.now(), cart }) : store.del("ord_cart");
+
+// ===== رسم القائمة =====
+const ITEM = {}; // اسم عربي -> {key, price, set(n)}
+function renderMenu() {
+  $("menu").innerHTML = ""; $("nav").innerHTML = "";
+  for (const k in ITEM) delete ITEM[k];
+  MENU.forEach(([title, hint, items], s) => {
+    items = items.filter(([n]) => !HIDE.includes(n));
+    if (!items.length) return;
+    const a = document.createElement("a"); a.href = "#s" + s; a.textContent = lang === "en" ? (SEC_EN[title] || title) : title; $("nav").append(a);
+    const sec = document.createElement("section"); sec.id = "s" + s; sec.dataset.s = norm(title + " " + (SEC_EN[title] || ""));
+    sec.innerHTML = `<h2></h2>${hint ? '<p class="note"></p>' : ""}`;
+    sec.querySelector("h2").textContent = a.textContent;
+    if (hint) sec.querySelector(".note").textContent = lang === "en" ? (HINT_EN[hint] || hint) : hint;
+    items.forEach(([name, price]) => {
+      const key = s + "|" + name;
+      const row = document.createElement("div"); row.className = "item"; row.dataset.s = norm(name + " " + (EN[name] || ""));
+      row.innerHTML = `<div class="n"></div><div class="qty"><button type="button" hidden>−</button><span hidden>0</span><button type="button" class="add">+</button></div><input class="inote" hidden maxlength="80">`;
+      row.querySelector(".n").innerHTML = `<div></div><div class="p"></div>`;
+      row.querySelector(".n div").textContent = nm(name);
+      row.querySelector(".p").textContent = fmt(price);
+      const img = document.createElement("img"); img.loading = "lazy"; img.width = img.height = 64;
+      if (IMG[name]) { img.src = IMG[name] + ".webp"; img.alt = nm(name); } else { img.src = "logo.png"; img.alt = ""; img.className = "ph"; }
+      row.prepend(img);
+      const [minus, q, plus] = row.querySelectorAll(".qty button, .qty span");
+      const note = row.querySelector(".inote"); note.placeholder = t("itemNote");
+      const set = (n, noteText) => {
+        if (n > 0) cart[key] = { name, price, q: n, note: noteText !== undefined ? noteText : (cart[key] && cart[key].note) || "" }; else delete cart[key];
+        q.textContent = n; minus.hidden = q.hidden = note.hidden = n === 0;
+        minus.setAttribute("aria-label", (lang === "ar" ? "إزالة " : "Remove ") + nm(name)); plus.setAttribute("aria-label", (lang === "ar" ? "إضافة " : "Add ") + nm(name));
+        if (n > 0) note.value = cart[key].note;
+        refresh(); saveCart();
+      };
+      plus.onclick = () => set((cart[key] ? cart[key].q : 0) + 1);
+      minus.onclick = () => set((cart[key] ? cart[key].q : 0) - 1);
+      note.oninput = () => { if (cart[key]) { cart[key].note = note.value.trim(); saveCart(); } };
+      ITEM[name] = { key, price, set };
+      sec.append(row);
+    });
+    $("menu").append(sec);
   });
-  $("menu").append(sec);
-});
+}
+function applyCart(saved) { // يعيد بناء حالة السلة على الصفحة المرسومة
+  Object.values(saved).forEach(i => { if (ITEM[i.name] && i.q > 0) ITEM[i.name].set(i.q, i.note || ""); });
+}
 
-// ---- البحث ----
 $("q").oninput = () => {
-  const t = norm($("q").value.trim()); let any = false;
+  const x = norm($("q").value.trim()); let any = false;
   document.querySelectorAll("#menu section").forEach(sec => {
     let n = 0;
-    sec.querySelectorAll(".item").forEach(r => { const show = !t || r.dataset.s.includes(t) || sec.dataset.s.includes(t); r.classList.toggle("hide", !show); n += show; });
+    sec.querySelectorAll(".item").forEach(r => { const show = !x || r.dataset.s.includes(x) || sec.dataset.s.includes(x); r.classList.toggle("hide", !show); n += show; });
     sec.classList.toggle("hide", !n); if (n) any = true;
   });
   $("empty").classList.toggle("hide", any);
@@ -234,74 +392,147 @@ $("q").oninput = () => {
 function refresh() {
   const n = Object.values(cart).reduce((s, i) => s + i.q, 0);
   $("bar").style.display = n ? "block" : "none";
-  $("open").textContent = `مراجعة الطلب (${n}) · ${fmt(total(cart))}`;
+  $("open").textContent = t("reviewBtn")(n, fmt(total(cart)));
 }
 
-// ---- مراجعة وإرسال ----
-let loc = null; // {lat, lng, km, fee}
+// ===== معلومات أعلى الصفحة: ساعات العمل ورسوم التوصيل =====
+function renderTop() {
+  const parts = TIERS.map(([m, f]) => t("tier")(m, fmt(f)));
+  $("info").textContent = t("delivInfo")(parts.join(" · ") + " · " + t("beyond")(MAX_KM)) + (MIN_ORDER ? " · " + t("minOrder")(fmt(MIN_ORDER)) : "");
+  const st = $("status");
+  if (!HOURS) { st.hidden = true; return; }
+  const open = openAt(HOURS, nowMin());
+  st.hidden = false; st.className = open ? "open" : "closed";
+  st.textContent = open ? t("openNow")(fmtT(HOURS.close)) : t("closedNow")(fmtT(HOURS.open));
+  $("send").disabled = !open;
+}
+
+// ===== اللغة =====
+function applyLang() {
+  document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.title = lang === "ar" ? "اطلب من التركستاني للبخاري" : "Order from Al-Turkestani Bukhari";
+  document.querySelectorAll("[data-t]").forEach(e => e.textContent = t(e.dataset.t));
+  document.querySelectorAll("[data-tp]").forEach(e => e.placeholder = t(e.dataset.tp));
+  $("q").placeholder = t("search"); $("q").setAttribute("aria-label", t("search"));
+  $("lang").textContent = lang === "ar" ? "EN" : "عربي";
+  $("map").setAttribute("aria-label", t("map"));
+}
+function setLang(l) {
+  const keep = JSON.parse(JSON.stringify(cart));
+  for (const k in cart) delete cart[k];
+  lang = l; try { localStorage.setItem("ord_lang", l); } catch (e) {}
+  applyLang(); renderMenu(); applyCart(keep); renderTop(); refresh(); $("q").oninput(); track("lang-" + l);
+}
+$("lang").onclick = () => setLang(lang === "ar" ? "en" : "ar");
+
+// ===== تتبع اختياري =====
+function track(name) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: "event/" + name, title: name, event: true }); } catch (e) {} }
+if (GOATCOUNTER) { const sc = document.createElement("script"); sc.async = true; sc.dataset.goatcounter = `https://${GOATCOUNTER}.goatcounter.com/count`; sc.src = "https://gc.zgo.at/count.js"; document.head.append(sc); }
+
+// ===== مراجعة وإرسال =====
+let loc = null; // {lat, lng, km, road, fee}
+let lastUrl = "";
 const kind = () => document.querySelector('input[name=kind]:checked').value;
-const setDist = (t, bad) => { $("dist").textContent = t; $("dist").classList.toggle("bad", !!bad); };
+const setDist = (tx, bad) => { $("dist").textContent = tx; $("dist").classList.toggle("bad", !!bad); };
+function renderLines() {
+  const L = $("lines"); L.innerHTML = "";
+  Object.values(cart).forEach(i => {
+    const d = document.createElement("div"); d.className = "line";
+    d.innerHTML = `<span><span class="nn"></span><small></small></span><span class="lq"><button type="button" aria-label="-">−</button><b></b><button type="button" aria-label="+">+</button><span class="lp"></span></span>`;
+    d.querySelector(".nn").textContent = nm(i.name);
+    d.querySelector("small").textContent = i.note || ""; d.querySelector("small").hidden = !i.note;
+    d.querySelector("b").textContent = i.q; d.querySelector(".lp").textContent = fmt(i.price * i.q);
+    const [m, p] = d.querySelectorAll("button");
+    m.onclick = () => { ITEM[i.name].set(i.q - 1); afterEdit(); };
+    p.onclick = () => { ITEM[i.name].set(i.q + 1); afterEdit(); };
+    L.append(d);
+  });
+  // اقتراحات
+  const C = $("chips"); C.innerHTML = "";
+  UPSELL.filter(n => ITEM[n] && !Object.values(cart).some(i => i.name === n)).forEach(n => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = `+ ${nm(n)} (${fmt(ITEM[n].price)})`;
+    b.onclick = () => { ITEM[n].set(1); afterEdit(); };
+    C.append(b);
+  });
+  $("upBox").hidden = !C.children.length;
+}
+function afterEdit() { if (!Object.keys(cart).length) return $("dlg").close(); renderLines(); renderTotals(); }
 function renderTotals() {
   const del = kind() === "توصيل", fee = del && loc && loc.fee != null ? loc.fee : 0;
   $("sub").textContent = fmt(total(cart));
   $("feeLine").hidden = !del;
-  $("fee").textContent = !del ? "" : !loc ? "حدد موقعك" : loc.fee == null ? "غير متاح" : fmt(loc.fee);
+  $("fee").textContent = !del ? "" : !loc ? t("needLoc") : loc.fee == null ? t("na") : fmt(loc.fee);
   $("tot").textContent = fmt(total(cart) + fee);
+  const mn = $("minNote"); mn.hidden = !(del && MIN_ORDER); if (!mn.hidden) mn.textContent = t("minOrder")(fmt(MIN_ORDER));
 }
 document.querySelectorAll('input[name=kind]').forEach(r => r.onchange = () => { $("addrBox").hidden = kind() !== "توصيل"; $("err").textContent = ""; renderTotals(); });
 $("open").onclick = () => {
-  $("lines").innerHTML = "";
-  Object.values(cart).forEach(i => { const d = document.createElement("div"); d.className = "line"; d.innerHTML = "<span></span><span></span>"; d.children[0].textContent = `${i.q} × ${i.name}`; d.children[1].textContent = fmt(i.price * i.q); $("lines").append(d); });
-  renderTotals(); $("err").textContent = ""; $("dlg").showModal();
+  const c = store.get("ord_cust"); if (c) { $("nm").value = c.name || ""; $("ph").value = c.phone || ""; $("ad").value = c.addr || ""; }
+  $("formBody").hidden = false; $("done").hidden = true;
+  renderLines(); renderTotals(); renderTop(); $("err").textContent = ""; $("dlg").showModal(); track("open-review");
 };
 $("back").onclick = () => $("dlg").close();
+$("again").onclick = () => { for (const k in cart) delete cart[k]; saveCart(); renderMenu(); refresh(); $("dlg").close(); window.scrollTo(0, 0); };
+
 // المسافة على الطريق من خدمة OSRM العامة (مجانية بلا مفتاح). عند تعذرها نستخدم التقدير الاحتياطي.
 // ponytail: خادم OSRM التجريبي بلا ضمان استمرارية؛ لو كثرت الطلبات استخدم خدمة مدفوعة أو خادمًا خاصًا.
 async function roadKm(a, b) {
-  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 6000);
+  const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 6000);
   try {
     const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=false`, { signal: ctl.signal });
     const j = await r.json();
     if (j.code === "Ok" && j.routes && j.routes[0]) return { km: j.routes[0].distance / 1000, road: true };
-  } catch (e) { /* نستخدم التقدير */ } finally { clearTimeout(t); }
+  } catch (e) { /* نستخدم التقدير */ } finally { clearTimeout(tm); }
   return { km: distKm(a, b) * FALLBACK, road: false };
 }
 $("loc").onclick = () => {
-  if (!navigator.geolocation) return setDist("متصفحك لا يدعم تحديد الموقع. اختر الاستلام من المطعم.", true);
-  setDist("جاري تحديد موقعك…");
+  if (!navigator.geolocation) return setDist(t("noGeo"), true);
+  setDist(t("locBusy"));
   navigator.geolocation.getCurrentPosition(async p => {
     const lat = p.coords.latitude, lng = p.coords.longitude;
-    setDist("جاري حساب المسافة على الطريق…");
+    setDist(t("locRoad"));
     const { km, road } = await roadKm(REST, { lat, lng });
     loc = { lat, lng, km: Math.round(km * 10) / 10, road, fee: feeFor(km) };
-    const how = road ? "على الطريق" : "التقديرية";
-    setDist(loc.fee == null
-      ? `عذرًا، التوصيل غير متاح لأكثر من ${MAX_KM} كم (المسافة ${how} حوالي ${loc.km} كم). تقدر تختار الاستلام من المطعم.`
-      : `المسافة ${how} حوالي ${loc.km} كم · رسوم التوصيل ${fmt(loc.fee)}`, loc.fee == null);
+    const how = road ? t("onRoad") : t("estimated");
+    setDist(loc.fee == null ? t("distFar")(MAX_KM, how, loc.km) : t("distOk")(how, loc.km, fmt(loc.fee)), loc.fee == null);
     renderTotals();
-  }, () => setDist("ما قدرنا نحدد موقعك. فعّل خدمة الموقع للمتصفح وحاول مرة ثانية، أو اختر الاستلام من المطعم.", true), { enableHighAccuracy: true, timeout: 15000 });
+  }, () => setDist(t("geoFail"), true), { enableHighAccuracy: true, timeout: 15000 });
 };
 $("send").onclick = () => {
   const f = { kind: kind(), name: $("nm").value.trim(), phone: $("ph").value.trim().replace(/[\s-]/g, ""), addr: $("ad").value.trim(), note: $("nt").value.trim(), id: String(Date.now()).slice(-4) };
-  if (!f.name) return $("err").textContent = "اكتب اسمك.";
-  if (!/^(05\d{8}|9665\d{8})$/.test(f.phone)) return $("err").textContent = "رقم الجوال غير صحيح (مثال: 0501234567).";
+  if (!openAt(HOURS, nowMin())) return $("err").textContent = t("eClosed");
+  if (!f.name) return $("err").textContent = t("eName");
+  if (!/^(05\d{8}|9665\d{8})$/.test(f.phone)) return $("err").textContent = t("ePhone");
   if (f.kind === "توصيل") {
-    if (!loc) return $("err").textContent = "اضغط «تحديد موقعي» لحساب رسوم التوصيل.";
-    if (loc.fee == null) return $("err").textContent = `التوصيل غير متاح لموقعك (أكثر من ${MAX_KM} كم). اختر الاستلام من المطعم.`;
+    if (MIN_ORDER && total(cart) < MIN_ORDER) return $("err").textContent = t("eMin")(fmt(MIN_ORDER));
+    if (!loc) return $("err").textContent = t("eLoc");
+    if (loc.fee == null) return $("err").textContent = t("eFar")(MAX_KM);
     Object.assign(f, loc);
   }
-  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(buildMessage(cart, f))}`, "_blank");
+  store.set("ord_cust", { name: f.name, phone: f.phone, addr: f.addr });
+  lastUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(buildMessage(cart, f))}`;
+  $("wa").href = lastUrl; $("formBody").hidden = true; $("done").hidden = false;
+  track("send-order");
+  window.open(lastUrl, "_blank");
 };
+
+// ===== تشغيل =====
+applyLang(); renderMenu();
+(function restore() { const s = store.get("ord_cart"); if (s && s.cart && Date.now() - s.t < 6 * 3600 * 1000) applyCart(s.cart); else store.del("ord_cart"); })();
+renderTop(); refresh(); setInterval(renderTop, 60000);
 
 // فحص ذاتي: افتح الصفحة بـ #test وانظر الكونسول
 if (location.hash === "#test") {
-  const c = { a: { name: "رز بخاري", price: 8, q: 2 }, b: { name: "ماء صغير", price: 0.5, q: 3 } };
+  const c = { a: { name: "رز بخاري", price: 8, q: 2, note: "بدون ثوم" }, b: { name: "ماء صغير", price: 0.5, q: 3 } };
   console.assert(total(c) === 17.5, "total");
   const m = buildMessage(c, { id: "1234", kind: "توصيل", name: "أحمد", phone: "0501234567", addr: "حي الفيصلية", lat: 25.9, lng: 45.3, km: 2.4, road: true, fee: 5, note: "" });
-  console.assert(m.includes("رسوم التوصيل: 5 ر.س (المسافة 2.4 كم على الطريق)") && m.includes("الإجمالي: 22.5 ر.س"), "msg");
+  console.assert(m.includes("رسوم التوصيل: 5 ر.س (المسافة 2.4 كم على الطريق)") && m.includes("الإجمالي: 22.5 ر.س") && m.includes("(ملاحظة: بدون ثوم)"), "msg");
   console.assert([1, 3].every(k => feeFor(k) === 5) && feeFor(3.1) === 10 && feeFor(6) === 10 && feeFor(6.1) === 15 && feeFor(12) === 15 && feeFor(12.1) === null, "tiers");
   console.assert(Math.abs(distKm(REST, { lat: REST.lat + 0.01, lng: REST.lng }) - 1.11) < 0.02, "haversine");
-  console.assert(norm("طحينة") === norm("طحينه") && norm("أرز").includes("ارز"), "norm");
+  const H = { open: "11:00", close: "00:30" };
+  console.assert(openAt(H, 720) && openAt(H, 10) && !openAt(H, 180) && !openAt(H, 659) && openAt(H, 660) && !openAt(H, 30) && openAt(null, 0), "hours");
+  console.assert(norm("طحينة") === norm("طحينه"), "norm");
+  const missing = MENU.flatMap(([, , it]) => it.map(([n]) => n)).filter(n => !EN[n]); console.assert(!missing.length, "EN missing: " + missing);
   console.log("self-check done");
 }
 </script>
