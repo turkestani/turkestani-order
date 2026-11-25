@@ -5,6 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>اطلب من التركستاني للبخاري</title>
 <link rel="icon" href="logo.png">
+<meta name="theme-color" content="#9c2f1a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ar_SA">
+<meta property="og:site_name" content="التركستاني للبخاري">
+<meta property="og:title" content="اطلب من التركستاني للبخاري">
+<meta property="og:description" content="رز بخاري ودجاج شواية على الفحم ورز قابلي في المجمعة. اطلب توصيل أو استلام.">
+<meta property="og:url" content="https://turkestani.github.io/turkestani-order/">
+<meta property="og:image" content="https://turkestani.github.io/turkestani-order/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Restaurant","name":"التركستاني للبخاري","alternateName":"Al-Turkestani Bukhari",
+"image":"https://turkestani.github.io/turkestani-order/og-image.png","url":"https://turkestani.github.io/turkestani-order/",
+"telephone":"+966164313396","priceRange":"SAR 20–40","servesCuisine":["Bukhari rice","Saudi","Grilled chicken"],
+"address":{"@type":"PostalAddress","streetAddress":"طريق الملك فهد","addressLocality":"المجمعة","addressCountry":"SA"},
+"geo":{"@type":"GeoCoordinates","latitude":25.9088261,"longitude":45.3480399},
+"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"10:30","closes":"00:30"}],
+"hasMenu":"https://turkestani.github.io/turkestani-order/"}
+</script>
 <meta name="description" content="اطلب رز بخاري ودجاج شواية على الفحم ورز قابلي من التركستاني للبخاري في المجمعة">
 <style>
 :root{--bg:#faf6ef;--card:#fff;--ink:#2b2118;--mut:#6f6254;--brand:#9c2f1a;--brand-ink:#fff;--line:#e6dccd;--ok:#1f7a3d;--bad:#c0392b}
@@ -28,12 +50,18 @@ section{scroll-margin-top:120px}
 h2{font-size:18px;margin:22px 0 8px}
 .note{color:var(--mut);font-size:13px;margin:-4px 0 8px}
 .hide,[hidden]{display:none!important}
+#announce{margin:8px auto 0;max-width:640px;padding:8px 12px;border-radius:10px;background:rgba(156,47,26,.12);border:1px solid var(--brand);font-size:14px;font-weight:600}
+#reorder{display:block;margin:8px auto 0;max-width:640px;width:100%;padding:10px 12px;border:1px solid var(--brand);border-radius:10px;background:none;color:var(--ink);font-size:15px}
+.item .d{color:var(--mut);font-size:13px;margin-top:2px}
+.item.sold{opacity:.55}
+.item .soldtag{color:var(--bad);font-size:13px;font-weight:600}
+#install{display:inline-block;margin-top:8px;padding:8px 14px;border:1px solid var(--line);border-radius:20px;background:var(--card);color:var(--ink);font-size:14px}
+#eta{font-weight:600}
 .item{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
 .item img{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none;background:#fff}
 .item img.ph{object-fit:contain;padding:6px;opacity:.7}
 .item .n{flex:1;min-width:0}
 .item .p{color:var(--mut);font-size:14px}
-.inote{flex:1 1 100%;padding:8px 10px;font-size:14px}
 .qty{display:flex;align-items:center;gap:6px}
 button{font:inherit;cursor:pointer}
 .qty button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:20px}
@@ -55,7 +83,6 @@ input,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radiu
 .line{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0}
 .line .lq{display:flex;align-items:center;gap:6px}
 .line .lq button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:18px;line-height:1}
-.line small{display:block;color:var(--mut)}
 .total{font-weight:700;font-size:18px;border-top:1px solid var(--line);margin-top:8px;padding-top:8px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .chips button{padding:8px 12px;border:1px dashed var(--brand);border-radius:20px;background:none;color:var(--ink);font-size:14px}
@@ -78,8 +105,10 @@ footer .contact a{padding:10px 16px;border:1px solid var(--line);border-radius:2
   <img src="logo.png" alt="" width="96" height="96" style="border-radius:16px;background:#fff">
   <h1 data-t="name"></h1>
   <p data-t="tagline"></p>
+  <div id="announce" hidden></div>
   <div id="status" hidden></div>
   <div id="info"></div>
+  <button id="reorder" type="button" hidden></button>
 </header>
 <div id="top">
   <input id="q" type="search" autocomplete="off">
@@ -93,6 +122,7 @@ footer .contact a{padding:10px 16px;border:1px solid var(--line);border-radius:2
     <a id="map" href="https://maps.google.com/?q=25.9088261,45.3480399" target="_blank" rel="noopener" data-t="map"></a>
   </div>
   <div data-t="footer"></div>
+  <button id="install" type="button" hidden data-t="install"></button>
 </footer>
 <div id="bar"><button id="open"></button></div>
 
@@ -103,6 +133,7 @@ footer .contact a{padding:10px 16px;border:1px solid var(--line);border-radius:2
       <div id="lines"></div>
       <div id="upBox"><p class="note" data-t="upTitle"></p><div class="chips" id="chips"></div></div>
       <div class="line"><span data-t="sub"></span><span id="sub"></span></div>
+      <div class="line" id="discLine" hidden><span data-t="disc"></span><span id="disc"></span></div>
       <div class="line" id="feeLine"><span data-t="fee"></span><span id="fee"></span></div>
       <div class="line total"><span data-t="total"></span><span id="tot"></span></div>
       <p class="note" id="minNote" hidden></p>
@@ -123,8 +154,6 @@ footer .contact a{padding:10px 16px;border:1px solid var(--line);border-radius:2
         <button type="button" class="loc" id="loc" data-t="locBtn"></button>
         <div id="dist" role="status"></div>
       </div>
-      <label for="nt" data-t="noteL"></label>
-      <input id="nt" data-tp="notePh">
 
       <div class="err" id="err" role="alert"></div>
       <div class="row">
@@ -135,7 +164,9 @@ footer .contact a{padding:10px 16px;border:1px solid var(--line);border-radius:2
     <div id="done" hidden>
       <h2 style="margin-top:0" data-t="doneH"></h2>
       <p data-t="doneP"></p>
+      <p id="eta" hidden></p>
       <a id="wa" class="btnlink go" target="_blank" rel="noopener" data-t="doneOpen"></a>
+      <a id="rev" class="btnlink" target="_blank" rel="noopener" hidden data-t="review2" style="margin-top:8px"></a>
       <div class="row"><button type="button" id="again" data-t="again"></button></div>
     </div>
   </form>
@@ -153,6 +184,18 @@ const HOURS = { open: "10:30", close: "00:30" }; // من خرائط قوقل: ك
 const MIN_ORDER = 0;
 // لتتبع الزيارات والنقرات: سجّل مجانًا في goatcounter.com واكتب اسم موقعك هنا، مثال: "turkestani". فارغ = بدون تتبع.
 const GOATCOUNTER = "";
+// إعلان في أعلى الصفحة (فارغ = لا يظهر). مثال: { ar: "عرض الخميس: …", en: "Thursday offer: …" }
+const ANNOUNCE = { ar: "", en: "" };
+// وقت الوصول المتوقع يظهر بعد الإرسال (فارغ = لا يظهر). مثال: { ar: "30–45 دقيقة", en: "30–45 minutes" }
+const ETA = { ar: "", en: "" };
+// رابط تقييم المطعم على قوقل (يظهر زر «قيّمنا» بعد الإرسال). الأفضل: رابط التقييم المباشر من ملف النشاط التجاري.
+const REVIEW_URL = "https://www.google.com/maps/place/%D8%A7%D9%84%D8%AA%D8%B1%D9%83%D8%B3%D8%AA%D8%A7%D9%86%D9%8A+%D9%84%D9%84%D8%A8%D8%AE%D8%A7%D8%B1%D9%8A/@25.9088261,45.3480399,17z/data=!4m6!3m5!1s0x3e2ac6266631569f:0x1702248a13c24c24!8m2!3d25.9088261!4d45.3480399!16s%2Fg%2F11c2jb831q?hl=ar";
+// وصف قصير تحت اسم الصنف، مثال: "نفر كباب لحم (3 أسياخ)": { ar: "يكفي شخصين", en: "Serves 2" }
+const DESC = {};
+// أصناف غير متوفرة مؤقتًا (تظهر رمادية ولا تُطلب)، مثال: const SOLDOUT = ["حمص"];
+const SOLDOUT = [];
+// خصم أول طلب بالنسبة المئوية (0 = بدون). يُحسب على هذا الجهاز فقط (من يمسح بيانات المتصفح قد يحصل عليه مرة ثانية).
+const FIRST_ORDER_PCT = 0;
 // أصناف تُقترح عند مراجعة الطلب (بأسمائها في القائمة)
 const UPSELL = ["حمص", "سلطة خضراء", "بيبسي (علبة)", "ماء صغير"];
 
@@ -234,10 +277,12 @@ const UI = {
     upTitle: "تبي تضيف؟", sub: "مجموع الأصناف", fee: "رسوم التوصيل", total: "الإجمالي",
     kind: "طريقة الاستلام", deliv: "توصيل", pickup: "استلام من المطعم",
     nameL: "الاسم", phoneL: "رقم الجوال", addrL: "العنوان (الحي والشارع وأقرب معلم)",
-    locBtn: "📍 تحديد موقعي لحساب رسوم التوصيل (مطلوب)", noteL: "ملاحظات (اختياري)", notePh: "مثال: بدون ثوم",
-    itemNote: "ملاحظة لهذا الصنف (مثال: بدون ثوم)", back: "رجوع", send: "إرسال الطلب عبر واتساب",
+    locBtn: "📍 تحديد موقعي لحساب رسوم التوصيل (مطلوب)",
+    back: "رجوع", send: "إرسال الطلب عبر واتساب",
     doneH: "تم تجهيز طلبك ✅", doneP: "اضغط «إرسال» داخل واتساب لإتمام الطلب. سنؤكد لك الطلب ووقت الوصول هناك.",
     doneOpen: "فتح واتساب مرة ثانية", again: "طلب جديد",
+    disc: "خصم أول طلب", reorder: (n, tot) => `🔁 اطلب نفس آخر طلب (${n} · ${tot})`, review2: "⭐ قيّمنا على قوقل", etaLbl: "وقت الوصول المتوقع", sold: "غير متوفر",
+    install: "📲 أضف للشاشة الرئيسية", iosHint: "في سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»", callFee: "أو اتصل بنا لتأكيد الرسوم: 016 431 3396",
     call: "📞 اتصل بنا", map: "📍 موقعنا", footer: "الدفع كاش عند الاستلام · يتم تأكيد الطلب عبر واتساب",
     openNow: c => `مفتوح الآن · نقفل ${c}`, closedNow: o => `مغلق الآن · نفتح الساعة ${o}`,
     delivInfo: s => `التوصيل: ${s}`, tier: (m, f) => `حتى ${m} كم ${f}`, beyond: m => `ولا يتوفر أكثر من ${m} كم`,
@@ -258,10 +303,12 @@ const UI = {
     upTitle: "Add something?", sub: "Items total", fee: "Delivery fee", total: "Total",
     kind: "How do you want it?", deliv: "Delivery", pickup: "Pick up",
     nameL: "Name", phoneL: "Mobile number", addrL: "Address (district, street, nearest landmark)",
-    locBtn: "📍 Share my location to calculate delivery (required)", noteL: "Notes (optional)", notePh: "e.g. no garlic",
-    itemNote: "Note for this item (e.g. no garlic)", back: "Back", send: "Send order via WhatsApp",
+    locBtn: "📍 Share my location to calculate delivery (required)",
+    back: "Back", send: "Send order via WhatsApp",
     doneH: "Your order is ready ✅", doneP: "Press “Send” inside WhatsApp to place the order. We'll confirm the order and arrival time there.",
     doneOpen: "Open WhatsApp again", again: "New order",
+    disc: "First-order discount", reorder: (n, tot) => `🔁 Reorder last order (${n} · ${tot})`, review2: "⭐ Rate us on Google", etaLbl: "Estimated arrival", sold: "Unavailable",
+    install: "📲 Add to home screen", iosHint: "In Safari: tap Share, then “Add to Home Screen”", callFee: "Or call us to confirm the fee: 016 431 3396",
     call: "📞 Call us", map: "📍 Our location", footer: "Cash on delivery · Order is confirmed via WhatsApp",
     openNow: c => `Open now · closes ${c}`, closedNow: o => `Closed now · opens at ${o}`,
     delivInfo: s => `Delivery: ${s}`, tier: (m, f) => `up to ${m} km ${f}`, beyond: m => `not available beyond ${m} km`,
@@ -287,6 +334,7 @@ const fmt = n => (Math.round(n * 100) / 100).toString().replace(/\.0+$/, "") + "
 // ===== منطق نقي (يُختبر) =====
 const cart = {}; // "قسم|اسم" -> {name, price, q, note}
 const total = c => Object.values(c).reduce((s, i) => s + i.price * i.q, 0);
+const discountFor = (sub, first) => first && FIRST_ORDER_PCT ? Math.round(sub * FIRST_ORDER_PCT) / 100 : 0;
 const toRad = d => d * Math.PI / 180;
 function distKm(a, b) {
   const h = Math.sin(toRad(b.lat - a.lat) / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(toRad(b.lng - a.lng) / 2) ** 2;
@@ -305,8 +353,8 @@ const nowMin = () => {
 };
 const fmtT = s => { let [h, m] = s.split(":").map(Number); const pm = h >= 12; h = h % 12 || 12; return `${h}:${String(m).padStart(2, "0")} ${lang === "ar" ? (pm ? "م" : "ص") : (pm ? "PM" : "AM")}`; };
 function buildMessage(c, f) { // الرسالة دائمًا بالعربية للمطعم والمندوب
-  const lines = Object.values(c).filter(i => i.q).map(i => `${i.q} × ${i.name} = ${fmtAr(i.price * i.q)}` + (i.note ? ` (ملاحظة: ${i.note})` : ""));
-  const del = f.kind === "توصيل", sub = total(c), fee = del ? f.fee : 0;
+  const lines = Object.values(c).filter(i => i.q).map(i => `${i.q} × ${i.name} = ${fmtAr(i.price * i.q)}`);
+  const del = f.kind === "توصيل", sub = total(c), fee = del ? f.fee : 0, disc = f.disc || 0;
   return [
     `طلب جديد #${f.id}`,
     `النوع: ${f.kind}`,
@@ -318,10 +366,10 @@ function buildMessage(c, f) { // الرسالة دائمًا بالعربية ل
     ...lines,
     "-----",
     `مجموع الأصناف: ${fmtAr(sub)}`,
+    disc ? `خصم أول طلب (${FIRST_ORDER_PCT}%): -${fmtAr(disc)}` : null,
     del ? `رسوم التوصيل: ${fmtAr(fee)} (المسافة ${f.km} كم ${f.road ? "على الطريق" : "تقديرية"})` : null,
-    `الإجمالي: ${fmtAr(sub + fee)} (شامل الضريبة)`,
+    `الإجمالي: ${fmtAr(sub - disc + fee)} (شامل الضريبة)`,
     "الدفع: كاش عند الاستلام",
-    f.note ? `ملاحظات: ${f.note}` : null,
   ].filter(Boolean).join("\n");
 }
 const fmtAr = n => (Math.round(n * 100) / 100).toString().replace(/\.0+$/, "") + " ر.س";
@@ -350,25 +398,24 @@ function renderMenu() {
     items.forEach(([name, price]) => {
       const key = s + "|" + name;
       const row = document.createElement("div"); row.className = "item"; row.dataset.s = norm(name + " " + (EN[name] || ""));
-      row.innerHTML = `<div class="n"></div><div class="qty"><button type="button" hidden>−</button><span hidden>0</span><button type="button" class="add">+</button></div><input class="inote" hidden maxlength="80">`;
+      row.innerHTML = `<div class="n"></div><div class="qty"><button type="button" hidden>−</button><span hidden>0</span><button type="button" class="add">+</button></div>`;
       row.querySelector(".n").innerHTML = `<div></div><div class="p"></div>`;
       row.querySelector(".n div").textContent = nm(name);
       row.querySelector(".p").textContent = fmt(price);
+      const dd = DESC[name]; if (dd && (dd[lang] || dd.ar)) { const de = document.createElement("div"); de.className = "d"; de.textContent = dd[lang] || dd.ar; row.querySelector(".n").append(de); }
       const img = document.createElement("img"); img.loading = "lazy"; img.width = img.height = 64;
       if (IMG[name]) { img.src = IMG[name] + ".webp"; img.alt = nm(name); } else { img.src = "logo.png"; img.alt = ""; img.className = "ph"; }
       row.prepend(img);
       const [minus, q, plus] = row.querySelectorAll(".qty button, .qty span");
-      const note = row.querySelector(".inote"); note.placeholder = t("itemNote");
-      const set = (n, noteText) => {
-        if (n > 0) cart[key] = { name, price, q: n, note: noteText !== undefined ? noteText : (cart[key] && cart[key].note) || "" }; else delete cart[key];
-        q.textContent = n; minus.hidden = q.hidden = note.hidden = n === 0;
+            const set = n => {
+        if (n > 0) cart[key] = { name, price, q: n }; else delete cart[key];
+        q.textContent = n; minus.hidden = q.hidden = n === 0;
         minus.setAttribute("aria-label", (lang === "ar" ? "إزالة " : "Remove ") + nm(name)); plus.setAttribute("aria-label", (lang === "ar" ? "إضافة " : "Add ") + nm(name));
-        if (n > 0) note.value = cart[key].note;
         refresh(); saveCart();
       };
+      if (SOLDOUT.includes(name)) { row.classList.add("sold"); plus.hidden = true; const st = document.createElement("div"); st.className = "soldtag"; st.textContent = t("sold"); row.querySelector(".n").append(st); }
       plus.onclick = () => set((cart[key] ? cart[key].q : 0) + 1);
       minus.onclick = () => set((cart[key] ? cart[key].q : 0) - 1);
-      note.oninput = () => { if (cart[key]) { cart[key].note = note.value.trim(); saveCart(); } };
       ITEM[name] = { key, price, set };
       sec.append(row);
     });
@@ -376,7 +423,7 @@ function renderMenu() {
   });
 }
 function applyCart(saved) { // يعيد بناء حالة السلة على الصفحة المرسومة
-  Object.values(saved).forEach(i => { if (ITEM[i.name] && i.q > 0) ITEM[i.name].set(i.q, i.note || ""); });
+  Object.values(saved).forEach(i => { if (ITEM[i.name] && !SOLDOUT.includes(i.name) && i.q > 0) ITEM[i.name].set(i.q); });
 }
 
 $("q").oninput = () => {
@@ -391,12 +438,23 @@ $("q").oninput = () => {
 
 function refresh() {
   const n = Object.values(cart).reduce((s, i) => s + i.q, 0);
+  if (typeof renderReorder === "function" && $("reorder")) renderReorder();
   $("bar").style.display = n ? "block" : "none";
   $("open").textContent = t("reviewBtn")(n, fmt(total(cart)));
 }
 
 // ===== معلومات أعلى الصفحة: ساعات العمل ورسوم التوصيل =====
+function renderReorder() {
+  const b = $("reorder"), last = store.get("ord_last");
+  if (!last || !last.items || Object.keys(cart).length) { b.hidden = true; return; }
+  const items = last.items.filter(i => ITEM[i.name] && !SOLDOUT.includes(i.name));
+  if (!items.length) { b.hidden = true; return; }
+  const tot = items.reduce((s, i) => s + ITEM[i.name].price * i.q, 0), n = items.reduce((s, i) => s + i.q, 0);
+  b.hidden = false; b.textContent = t("reorder")(n, fmt(tot));
+  b.onclick = () => { items.forEach(i => ITEM[i.name].set(i.q)); b.hidden = true; track("reorder"); window.scrollTo({ top: 0, behavior: "smooth" }); };
+}
 function renderTop() {
+  const an = $("announce"), at = (ANNOUNCE[lang] || ANNOUNCE.ar || "").trim(); an.hidden = !at; an.textContent = at;
   const parts = TIERS.map(([m, f]) => t("tier")(m, fmt(f)));
   $("info").textContent = t("delivInfo")(parts.join(" · ") + " · " + t("beyond")(MAX_KM)) + (MIN_ORDER ? " · " + t("minOrder")(fmt(MIN_ORDER)) : "");
   const st = $("status");
@@ -421,9 +479,16 @@ function setLang(l) {
   const keep = JSON.parse(JSON.stringify(cart));
   for (const k in cart) delete cart[k];
   lang = l; try { localStorage.setItem("ord_lang", l); } catch (e) {}
-  applyLang(); renderMenu(); applyCart(keep); renderTop(); refresh(); $("q").oninput(); track("lang-" + l);
+  applyLang(); renderMenu(); applyCart(keep); renderTop(); renderReorder(); refresh(); $("q").oninput(); track("lang-" + l);
 }
 $("lang").onclick = () => setLang(lang === "ar" ? "en" : "ar");
+
+// ===== تثبيت على الشاشة الرئيسية =====
+let installEvt = null;
+const standalone = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; if (!standalone()) $("install").hidden = false; });
+if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone()) $("install").hidden = false;
+$("install").onclick = async () => { if (installEvt) { installEvt.prompt(); installEvt = null; $("install").hidden = true; } else alert(t("iosHint")); };
 
 // ===== تتبع اختياري =====
 function track(name) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: "event/" + name, title: name, event: true }); } catch (e) {} }
@@ -433,14 +498,16 @@ if (GOATCOUNTER) { const sc = document.createElement("script"); sc.async = true;
 let loc = null; // {lat, lng, km, road, fee}
 let lastUrl = "";
 const kind = () => document.querySelector('input[name=kind]:checked').value;
-const setDist = (tx, bad) => { $("dist").textContent = tx; $("dist").classList.toggle("bad", !!bad); };
+const setDist = (tx, bad, call) => {
+  const d = $("dist"); d.textContent = tx; d.classList.toggle("bad", !!bad);
+  if (call) { const a = document.createElement("a"); a.href = "tel:+966164313396"; a.textContent = " " + t("callFee"); d.append(a); }
+};
 function renderLines() {
   const L = $("lines"); L.innerHTML = "";
   Object.values(cart).forEach(i => {
     const d = document.createElement("div"); d.className = "line";
-    d.innerHTML = `<span><span class="nn"></span><small></small></span><span class="lq"><button type="button" aria-label="-">−</button><b></b><button type="button" aria-label="+">+</button><span class="lp"></span></span>`;
+    d.innerHTML = `<span class="nn"></span><span class="lq"><button type="button" aria-label="-">−</button><b></b><button type="button" aria-label="+">+</button><span class="lp"></span></span>`;
     d.querySelector(".nn").textContent = nm(i.name);
-    d.querySelector("small").textContent = i.note || ""; d.querySelector("small").hidden = !i.note;
     d.querySelector("b").textContent = i.q; d.querySelector(".lp").textContent = fmt(i.price * i.q);
     const [m, p] = d.querySelectorAll("button");
     m.onclick = () => { ITEM[i.name].set(i.q - 1); afterEdit(); };
@@ -449,7 +516,7 @@ function renderLines() {
   });
   // اقتراحات
   const C = $("chips"); C.innerHTML = "";
-  UPSELL.filter(n => ITEM[n] && !Object.values(cart).some(i => i.name === n)).forEach(n => {
+  UPSELL.filter(n => ITEM[n] && !SOLDOUT.includes(n) && !Object.values(cart).some(i => i.name === n)).forEach(n => {
     const b = document.createElement("button"); b.type = "button"; b.textContent = `+ ${nm(n)} (${fmt(ITEM[n].price)})`;
     b.onclick = () => { ITEM[n].set(1); afterEdit(); };
     C.append(b);
@@ -457,12 +524,15 @@ function renderLines() {
   $("upBox").hidden = !C.children.length;
 }
 function afterEdit() { if (!Object.keys(cart).length) return $("dlg").close(); renderLines(); renderTotals(); }
+const isFirst = () => !store.get("ord_last");
 function renderTotals() {
   const del = kind() === "توصيل", fee = del && loc && loc.fee != null ? loc.fee : 0;
+  const disc = discountFor(total(cart), isFirst());
   $("sub").textContent = fmt(total(cart));
+  $("discLine").hidden = !disc; $("disc").textContent = disc ? "-" + fmt(disc) : "";
   $("feeLine").hidden = !del;
   $("fee").textContent = !del ? "" : !loc ? t("needLoc") : loc.fee == null ? t("na") : fmt(loc.fee);
-  $("tot").textContent = fmt(total(cart) + fee);
+  $("tot").textContent = fmt(total(cart) - disc + fee);
   const mn = $("minNote"); mn.hidden = !(del && MIN_ORDER); if (!mn.hidden) mn.textContent = t("minOrder")(fmt(MIN_ORDER));
 }
 document.querySelectorAll('input[name=kind]').forEach(r => r.onchange = () => { $("addrBox").hidden = kind() !== "توصيل"; $("err").textContent = ""; renderTotals(); });
@@ -486,7 +556,7 @@ async function roadKm(a, b) {
   return { km: distKm(a, b) * FALLBACK, road: false };
 }
 $("loc").onclick = () => {
-  if (!navigator.geolocation) return setDist(t("noGeo"), true);
+  if (!navigator.geolocation) return setDist(t("noGeo"), true, true);
   setDist(t("locBusy"));
   navigator.geolocation.getCurrentPosition(async p => {
     const lat = p.coords.latitude, lng = p.coords.longitude;
@@ -496,10 +566,10 @@ $("loc").onclick = () => {
     const how = road ? t("onRoad") : t("estimated");
     setDist(loc.fee == null ? t("distFar")(MAX_KM, how, loc.km) : t("distOk")(how, loc.km, fmt(loc.fee)), loc.fee == null);
     renderTotals();
-  }, () => setDist(t("geoFail"), true), { enableHighAccuracy: true, timeout: 15000 });
+  }, () => setDist(t("geoFail"), true, true), { enableHighAccuracy: true, timeout: 15000 });
 };
 $("send").onclick = () => {
-  const f = { kind: kind(), name: $("nm").value.trim(), phone: $("ph").value.trim().replace(/[\s-]/g, ""), addr: $("ad").value.trim(), note: $("nt").value.trim(), id: String(Date.now()).slice(-4) };
+  const f = { kind: kind(), name: $("nm").value.trim(), phone: $("ph").value.trim().replace(/[\s-]/g, ""), addr: $("ad").value.trim(), id: String(Date.now()).slice(-4) };
   if (!openAt(HOURS, nowMin())) return $("err").textContent = t("eClosed");
   if (!f.name) return $("err").textContent = t("eName");
   if (!/^(05\d{8}|9665\d{8})$/.test(f.phone)) return $("err").textContent = t("ePhone");
@@ -509,9 +579,13 @@ $("send").onclick = () => {
     if (loc.fee == null) return $("err").textContent = t("eFar")(MAX_KM);
     Object.assign(f, loc);
   }
+  f.disc = discountFor(total(cart), isFirst());
   store.set("ord_cust", { name: f.name, phone: f.phone, addr: f.addr });
   lastUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(buildMessage(cart, f))}`;
+  store.set("ord_last", { t: Date.now(), items: Object.values(cart).map(i => ({ name: i.name, q: i.q })) });
   $("wa").href = lastUrl; $("formBody").hidden = true; $("done").hidden = false;
+  const eta = (ETA[lang] || ETA.ar || "").trim(); $("eta").hidden = !eta; $("eta").textContent = eta ? t("etaLbl") + ": " + eta : "";
+  $("rev").hidden = !REVIEW_URL; if (REVIEW_URL) $("rev").href = REVIEW_URL;
   track("send-order");
   window.open(lastUrl, "_blank");
 };
@@ -519,19 +593,22 @@ $("send").onclick = () => {
 // ===== تشغيل =====
 applyLang(); renderMenu();
 (function restore() { const s = store.get("ord_cart"); if (s && s.cart && Date.now() - s.t < 6 * 3600 * 1000) applyCart(s.cart); else store.del("ord_cart"); })();
-renderTop(); refresh(); setInterval(renderTop, 60000);
+renderTop(); renderReorder(); refresh(); setInterval(renderTop, 60000);
 
 // فحص ذاتي: افتح الصفحة بـ #test وانظر الكونسول
 if (location.hash === "#test") {
-  const c = { a: { name: "رز بخاري", price: 8, q: 2, note: "بدون ثوم" }, b: { name: "ماء صغير", price: 0.5, q: 3 } };
+  const c = { a: { name: "رز بخاري", price: 8, q: 2 }, b: { name: "ماء صغير", price: 0.5, q: 3 } };
   console.assert(total(c) === 17.5, "total");
-  const m = buildMessage(c, { id: "1234", kind: "توصيل", name: "أحمد", phone: "0501234567", addr: "حي الفيصلية", lat: 25.9, lng: 45.3, km: 2.4, road: true, fee: 5, note: "" });
-  console.assert(m.includes("رسوم التوصيل: 5 ر.س (المسافة 2.4 كم على الطريق)") && m.includes("الإجمالي: 22.5 ر.س") && m.includes("(ملاحظة: بدون ثوم)"), "msg");
+  const m = buildMessage(c, { id: "1234", kind: "توصيل", name: "أحمد", phone: "0501234567", addr: "حي الفيصلية", lat: 25.9, lng: 45.3, km: 2.4, road: true, fee: 5 });
+  console.assert(m.includes("رسوم التوصيل: 5 ر.س (المسافة 2.4 كم على الطريق)") && m.includes("الإجمالي: 22.5 ر.س"), "msg");
   console.assert([1, 3].every(k => feeFor(k) === 5) && feeFor(3.1) === 10 && feeFor(6) === 10 && feeFor(6.1) === 15 && feeFor(12) === 15 && feeFor(12.1) === null, "tiers");
   console.assert(Math.abs(distKm(REST, { lat: REST.lat + 0.01, lng: REST.lng }) - 1.11) < 0.02, "haversine");
   const H = { open: "11:00", close: "00:30" };
   console.assert(openAt(H, 720) && openAt(H, 10) && !openAt(H, 180) && !openAt(H, 659) && openAt(H, 660) && !openAt(H, 30) && openAt(null, 0), "hours");
   console.assert(norm("طحينة") === norm("طحينه"), "norm");
+  console.assert(discountFor(100, true) === (FIRST_ORDER_PCT ? FIRST_ORDER_PCT : 0) && discountFor(100, false) === 0, "disc");
+  const m2 = buildMessage({ a: { name: "رز بخاري", price: 10, q: 2 } }, { id: "1", kind: "استلام من المطعم", name: "س", phone: "0500000000", disc: 2 });
+  console.assert(m2.includes("-2 ر.س") && m2.includes("الإجمالي: 18 ر.س"), "disc msg");
   const missing = MENU.flatMap(([, , it]) => it.map(([n]) => n)).filter(n => !EN[n]); console.assert(!missing.length, "EN missing: " + missing);
   console.log("self-check done");
 }
