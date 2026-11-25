@@ -196,10 +196,15 @@ const DESC = {};
 const SOLDOUT = [];
 // خصم أول طلب بالنسبة المئوية (0 = بدون). يُحسب على هذا الجهاز فقط (من يمسح بيانات المتصفح قد يحصل عليه مرة ثانية).
 const FIRST_ORDER_PCT = 0;
+// أقسام موسمية تظهر فقط في رمضان. RAMADAN: "auto" (حسب تقويم أم القرى) | "on" (إظهار دائم) | "off" (إخفاء دائم)
+// ملاحظة: بداية رمضان في السعودية تُعلن بالرؤية وقد تختلف يومًا عن التقويم، فاستعمل "on" أو "off" يدويًا لو لزم.
+const RAMADAN = "auto";
+const RAMADAN_SECTIONS = ["وجبات رمضان", "الحلويات"];
 // أصناف تُقترح عند مراجعة الطلب (بأسمائها في القائمة)
 const UPSELL = ["حمص", "سلطة خضراء", "بيبسي (علبة)", "ماء صغير"];
 
 const MENU = [
+  ["وجبات رمضان", "", [["وجبة إفطار صائم",15],["ربع شواية إفطار صائم",8]]],
   ["الشواية", "مع الرز أو سادة", [
     ["حبة دجاج شواية مع الرز",42],["نص دجاج شواية مع الرز",21],["ربع دجاج شواية مع الرز",12],
     ["حبة دجاج شواية سادة",30],["نص دجاج شواية سادة",15],["ربع دجاج شواية سادة",8]]],
@@ -232,7 +237,7 @@ const MENU = [
     ["ماء صغير",0.5],["ماء كبير",1]]],
 ];
 
-const IMG = {"حبة دجاج شواية مع الرز":"p49","نص دجاج شواية مع الرز":"p48","ربع دجاج شواية مع الرز":"p47","حبة دجاج شواية سادة":"p46","نص دجاج شواية سادة":"p45","ربع دجاج شواية سادة":"p44","حبة دجاج على الفحم مع الرز":"p55","نص دجاج على الفحم مع الرز":"p54","ربع دجاج على الفحم مع الرز":"p64","حبة دجاج على الفحم سادة":"p53","نص دجاج على الفحم سادة":"p52","ربع دجاج على الفحم سادة":"p94","حبة دجاج مضغوط":"p51","نص دجاج مضغوط":"p50","نفر كباب لحم (3 أسياخ)":"p43","نفر كباب دجاج (3 أسياخ)":"p42","نفر شيش طاووق (3 أسياخ)":"p41","نفر مشوي مشكل (3 أسياخ)":"p40","نفر رز بخاري":"p87","نفر رز شعبي":"p88","نفر مضغوط حاشي":"p89","نفر كبسة حاشي":"p91","نصف كبسة حاشي":"p90","نفر قابلي لحم":"p93","نصف نفر قابلي لحم":"p92","سلطة لبن خيار":"p69","سلطة خضراء":"p72","حمص":"p74","متبل":"p73","طحينة":"p75","تبولة":"p71","سلطة ملفوف":"p77","سلطة روسي":"p76","مقبلات مشكل":"p70","خضار مشكل (صغير)":"p36","خضار مشكل (كبير)":"p29","مصقعة (صغير)":"p35","مصقعة (كبير)":"p27","ملوخية (صغير)":"p25","ملوخية (كبير)":"p30","بامية (صغير)":"p34","بامية (كبير)":"p28","بطاطس دجاج (صغير)":"p33","بطاطس دجاج (كبير)":"p26","شوربة":"p31","مكرونة":"p32","لبن صغير":"p6","لبن 360 مل":"p19","لبن وسط":"p5","زبادي":"p3","ماء صغير":"p2","ماء كبير":"p1","كريم كراميل":"p78","جيلي":"p79","مهلبية":"p82","بيبسي (علبة)":"p12","بيبسي دايت (علبة)":"p7","ديو (علبة)":"p9","سفن اب (علبة)":"p10","سفن اب دايت (علبة)":"p18","حمضيات (علبة)":"p11","برتقال (علبة)":"p8","بيبسي (لتر)":"p17","ديو (لتر)":"p14","سفن اب (لتر)":"p15","حمضيات (لتر)":"p16","بيبسي (عائلي)":"p13","ديو (عائلي)":"p22","سفن اب (عائلي)":"p23","حمضيات (عائلي)":"p24"};
+const IMG = {"حبة دجاج شواية مع الرز":"p49","نص دجاج شواية مع الرز":"p48","ربع دجاج شواية مع الرز":"p47","حبة دجاج شواية سادة":"p46","نص دجاج شواية سادة":"p45","ربع دجاج شواية سادة":"p44","حبة دجاج على الفحم مع الرز":"p55","نص دجاج على الفحم مع الرز":"p54","ربع دجاج على الفحم مع الرز":"p64","حبة دجاج على الفحم سادة":"p53","نص دجاج على الفحم سادة":"p52","ربع دجاج على الفحم سادة":"p94","حبة دجاج مضغوط":"p51","نص دجاج مضغوط":"p50","نفر كباب لحم (3 أسياخ)":"p43","نفر كباب دجاج (3 أسياخ)":"p42","نفر شيش طاووق (3 أسياخ)":"p41","نفر مشوي مشكل (3 أسياخ)":"p40","نفر رز بخاري":"p87","نفر رز شعبي":"p88","نفر مضغوط حاشي":"p89","نفر كبسة حاشي":"p91","نصف كبسة حاشي":"p90","نفر قابلي لحم":"p93","نصف نفر قابلي لحم":"p92","سلطة لبن خيار":"p69","سلطة خضراء":"p72","حمص":"p74","متبل":"p73","طحينة":"p75","تبولة":"p71","سلطة ملفوف":"p77","سلطة روسي":"p76","مقبلات مشكل":"p70","خضار مشكل (صغير)":"p36","خضار مشكل (كبير)":"p29","مصقعة (صغير)":"p35","مصقعة (كبير)":"p27","ملوخية (صغير)":"p25","ملوخية (كبير)":"p30","بامية (صغير)":"p34","بامية (كبير)":"p28","بطاطس دجاج (صغير)":"p33","بطاطس دجاج (كبير)":"p26","شوربة":"p31","مكرونة":"p32","لبن صغير":"p6","لبن 360 مل":"p19","لبن وسط":"p5","زبادي":"p3","ماء صغير":"p2","ماء كبير":"p1","كريم كراميل":"p78","جيلي":"p79","مهلبية":"p82","بيبسي (علبة)":"p12","بيبسي دايت (علبة)":"p7","ديو (علبة)":"p9","سفن اب (علبة)":"p10","سفن اب دايت (علبة)":"p18","حمضيات (علبة)":"p11","برتقال (علبة)":"p8","بيبسي (لتر)":"p17","ديو (لتر)":"p14","سفن اب (لتر)":"p15","حمضيات (لتر)":"p16","بيبسي (عائلي)":"p13","ديو (عائلي)":"p22","سفن اب (عائلي)":"p23","حمضيات (عائلي)":"p24","ربع شواية إفطار صائم":"p84"};
 
 // ===== الأسماء بالإنجليزية (من قائمة نظامكم المطبوعة، مع تصحيح الإملاء) =====
 const EN = {
@@ -257,9 +262,10 @@ const EN = {
   "بيبسي (لتر)": "Pepsi (1 L)", "ديو (لتر)": "Mountain Dew (1 L)", "سفن اب (لتر)": "7Up (1 L)", "حمضيات (لتر)": "Citrus (1 L)",
   "بيبسي (عائلي)": "Pepsi (family)", "ديو (عائلي)": "Mountain Dew (family)", "سفن اب (عائلي)": "7Up (family)", "حمضيات (عائلي)": "Citrus (family)",
   "لبن صغير": "Laban (small)", "لبن 360 مل": "Laban (360 ml)", "لبن وسط": "Laban (medium)", "لبن كبير": "Laban (large)", "زبادي": "Yoghurt",
-  "ماء صغير": "Water (small)", "ماء كبير": "Water (large)"
+  "ماء صغير": "Water (small)", "ماء كبير": "Water (large)",
+  "وجبة إفطار صائم": "Iftar Meal", "ربع شواية إفطار صائم": "Quarter Grilled Chicken – Iftar"
 };
-const SEC_EN = { "الشواية": "Grilled Chicken", "الفحم": "Barbecue Chicken", "المضغوط": "Steamed Chicken", "المشاوي": "Grills", "الرز": "Rice", "اللحوم": "Meat", "المقبلات": "Appetizers", "الإيدامات": "Sides & Stews", "الصحون": "Plates", "الحلويات": "Desserts", "المشروبات": "Drinks" };
+const SEC_EN = { "الشواية": "Grilled Chicken", "الفحم": "Barbecue Chicken", "المضغوط": "Steamed Chicken", "المشاوي": "Grills", "الرز": "Rice", "اللحوم": "Meat", "المقبلات": "Appetizers", "الإيدامات": "Sides & Stews", "الصحون": "Plates", "الحلويات": "Desserts", "المشروبات": "Drinks", "وجبات رمضان": "Ramadan Meals" };
 const HINT_EN = { "مع الرز أو سادة": "With rice or plain", "صغير / كبير": "Small / Large", "علبة 2.5 · لتر 5 · عائلي 9 ر.س": "Can 2.5 · 1 L 5 · Family 9 SAR" };
 
 // ===== التوصيل: الرسوم حسب المسافة على الطريق =====
@@ -335,6 +341,13 @@ const fmt = n => (Math.round(n * 100) / 100).toString().replace(/\.0+$/, "") + "
 const cart = {}; // "قسم|اسم" -> {name, price, q, note}
 const total = c => Object.values(c).reduce((s, i) => s + i.price * i.q, 0);
 const discountFor = (sub, first) => first && FIRST_ORDER_PCT ? Math.round(sub * FIRST_ORDER_PCT) / 100 : 0;
+function isRamadan(d) { // الشهر الهجري 9 بتقويم أم القرى وبتوقيت الرياض
+  try {
+    const p = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", { month: "numeric", timeZone: "Asia/Riyadh" }).formatToParts(d);
+    return +p.find(x => x.type === "month").value === 9;
+  } catch (e) { return false; }
+}
+const ramadanNow = () => RAMADAN === "on" ? true : RAMADAN === "off" ? false : isRamadan(new Date());
 const toRad = d => d * Math.PI / 180;
 function distKm(a, b) {
   const h = Math.sin(toRad(b.lat - a.lat) / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(toRad(b.lng - a.lng) / 2) ** 2;
@@ -370,6 +383,7 @@ function buildMessage(c, f) { // الرسالة دائمًا بالعربية ل
     del ? `رسوم التوصيل: ${fmtAr(fee)} (المسافة ${f.km} كم ${f.road ? "على الطريق" : "تقديرية"})` : null,
     `الإجمالي: ${fmtAr(sub - disc + fee)} (شامل الضريبة)`,
     "الدفع: كاش عند الاستلام",
+    f.src ? `المصدر: ${f.src}` : null,
   ].filter(Boolean).join("\n");
 }
 const fmtAr = n => (Math.round(n * 100) / 100).toString().replace(/\.0+$/, "") + " ر.س";
@@ -380,6 +394,14 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
   del(k) { try { localStorage.removeItem(k); } catch (e) {} },
 };
+// مصدر الزيارة من الرابط (?utm_source=google_profile مثلًا)، يُحفظ 24 ساعة ويظهر في رسالة الطلب
+const SRC = (() => {
+  try {
+    const m = (new URLSearchParams(location.search).get("utm_source") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 30);
+    if (m) { store.set("ord_src", { s: m, t: Date.now() }); return m; }
+    const o = store.get("ord_src"); return o && Date.now() - o.t < 24 * 3600 * 1000 ? o.s : "";
+  } catch (e) { return ""; }
+})();
 const saveCart = () => Object.keys(cart).length ? store.set("ord_cart", { t: Date.now(), cart }) : store.del("ord_cart");
 
 // ===== رسم القائمة =====
@@ -390,6 +412,7 @@ function renderMenu() {
   MENU.forEach(([title, hint, items], s) => {
     items = items.filter(([n]) => !HIDE.includes(n));
     if (!items.length) return;
+    if (RAMADAN_SECTIONS.includes(title) && !ramadanNow()) return;
     const a = document.createElement("a"); a.href = "#s" + s; a.textContent = lang === "en" ? (SEC_EN[title] || title) : title; $("nav").append(a);
     const sec = document.createElement("section"); sec.id = "s" + s; sec.dataset.s = norm(title + " " + (SEC_EN[title] || ""));
     sec.innerHTML = `<h2></h2>${hint ? '<p class="note"></p>' : ""}`;
@@ -569,7 +592,7 @@ $("loc").onclick = () => {
   }, () => setDist(t("geoFail"), true, true), { enableHighAccuracy: true, timeout: 15000 });
 };
 $("send").onclick = () => {
-  const f = { kind: kind(), name: $("nm").value.trim(), phone: $("ph").value.trim().replace(/[\s-]/g, ""), addr: $("ad").value.trim(), id: String(Date.now()).slice(-4) };
+  const f = { kind: kind(), src: SRC, name: $("nm").value.trim(), phone: $("ph").value.trim().replace(/[\s-]/g, ""), addr: $("ad").value.trim(), id: String(Date.now()).slice(-4) };
   if (!openAt(HOURS, nowMin())) return $("err").textContent = t("eClosed");
   if (!f.name) return $("err").textContent = t("eName");
   if (!/^(05\d{8}|9665\d{8})$/.test(f.phone)) return $("err").textContent = t("ePhone");
@@ -606,6 +629,8 @@ if (location.hash === "#test") {
   const H = { open: "11:00", close: "00:30" };
   console.assert(openAt(H, 720) && openAt(H, 10) && !openAt(H, 180) && !openAt(H, 659) && openAt(H, 660) && !openAt(H, 30) && openAt(null, 0), "hours");
   console.assert(norm("طحينة") === norm("طحينه"), "norm");
+  console.assert(isRamadan(new Date("2026-03-01T12:00:00+03:00")) && !isRamadan(new Date("2026-11-26T12:00:00+03:00")) && isRamadan(new Date("2027-02-20T12:00:00+03:00")) && !isRamadan(new Date("2027-04-01T12:00:00+03:00")), "ramadan");
+  console.assert(buildMessage({ a: { name: "رز", price: 8, q: 1 } }, { id: "1", kind: "استلام من المطعم", name: "س", phone: "0500000000", src: "google_profile" }).includes("المصدر: google_profile"), "src");
   console.assert(discountFor(100, true) === (FIRST_ORDER_PCT ? FIRST_ORDER_PCT : 0) && discountFor(100, false) === 0, "disc");
   const m2 = buildMessage({ a: { name: "رز بخاري", price: 10, q: 2 } }, { id: "1", kind: "استلام من المطعم", name: "س", phone: "0500000000", disc: 2 });
   console.assert(m2.includes("-2 ر.س") && m2.includes("الإجمالي: 18 ر.س"), "disc msg");
