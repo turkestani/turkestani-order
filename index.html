@@ -159,6 +159,7 @@ const total = c => Object.values(c).reduce((s, i) => s + i.price * i.q, 0);
 const REST = { lat: 25.9088261, lng: 45.3480399 };
 const TIERS = [[3, 5], [6, 10], [12, 15]]; // [أقصى مسافة بالكم، الرسوم بالريال]
 const MAX_KM = 12;
+const FALLBACK = 1.4; // لو تعذرت خدمة المسارات: المسافة المقدرة = الخط المستقيم × 1.4 (قِيس الفرق 1.3–1.45)
 const toRad = d => d * Math.PI / 180;
 function distKm(a, b) {
   const h = Math.sin(toRad(b.lat - a.lat) / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(toRad(b.lng - a.lng) / 2) ** 2;
@@ -181,7 +182,7 @@ function buildMessage(c, f) {
     ...lines,
     "-----",
     `مجموع الأصناف: ${fmt(sub)}`,
-    del ? `رسوم التوصيل: ${fmt(fee)} (المسافة ${f.km} كم)` : null,
+    del ? `رسوم التوصيل: ${fmt(fee)} (المسافة ${f.km} كم ${f.road ? "على الطريق" : "تقديرية"})` : null,
     `الإجمالي: ${fmt(sub + fee)} (شامل الضريبة)`,
     "الدفع: كاش عند الاستلام",
     f.note ? `ملاحظات: ${f.note}` : null,
@@ -254,15 +255,29 @@ $("open").onclick = () => {
   renderTotals(); $("err").textContent = ""; $("dlg").showModal();
 };
 $("back").onclick = () => $("dlg").close();
+// المسافة على الطريق من خدمة OSRM العامة (مجانية بلا مفتاح). عند تعذرها نستخدم التقدير الاحتياطي.
+// ponytail: خادم OSRM التجريبي بلا ضمان استمرارية؛ لو كثرت الطلبات استخدم خدمة مدفوعة أو خادمًا خاصًا.
+async function roadKm(a, b) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 6000);
+  try {
+    const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=false`, { signal: ctl.signal });
+    const j = await r.json();
+    if (j.code === "Ok" && j.routes && j.routes[0]) return { km: j.routes[0].distance / 1000, road: true };
+  } catch (e) { /* نستخدم التقدير */ } finally { clearTimeout(t); }
+  return { km: distKm(a, b) * FALLBACK, road: false };
+}
 $("loc").onclick = () => {
   if (!navigator.geolocation) return setDist("متصفحك لا يدعم تحديد الموقع. اختر الاستلام من المطعم.", true);
   setDist("جاري تحديد موقعك…");
-  navigator.geolocation.getCurrentPosition(p => {
-    const lat = p.coords.latitude, lng = p.coords.longitude, km = distKm(REST, { lat, lng });
-    loc = { lat, lng, km: Math.round(km * 10) / 10, fee: feeFor(km) };
+  navigator.geolocation.getCurrentPosition(async p => {
+    const lat = p.coords.latitude, lng = p.coords.longitude;
+    setDist("جاري حساب المسافة على الطريق…");
+    const { km, road } = await roadKm(REST, { lat, lng });
+    loc = { lat, lng, km: Math.round(km * 10) / 10, road, fee: feeFor(km) };
+    const how = road ? "على الطريق" : "التقديرية";
     setDist(loc.fee == null
-      ? `عذرًا، التوصيل غير متاح لأكثر من ${MAX_KM} كم (موقعك يبعد حوالي ${loc.km} كم). تقدر تختار الاستلام من المطعم.`
-      : `المسافة التقريبية ${loc.km} كم · رسوم التوصيل ${fmt(loc.fee)}`, loc.fee == null);
+      ? `عذرًا، التوصيل غير متاح لأكثر من ${MAX_KM} كم (المسافة ${how} حوالي ${loc.km} كم). تقدر تختار الاستلام من المطعم.`
+      : `المسافة ${how} حوالي ${loc.km} كم · رسوم التوصيل ${fmt(loc.fee)}`, loc.fee == null);
     renderTotals();
   }, () => setDist("ما قدرنا نحدد موقعك. فعّل خدمة الموقع للمتصفح وحاول مرة ثانية، أو اختر الاستلام من المطعم.", true), { enableHighAccuracy: true, timeout: 15000 });
 };
@@ -282,8 +297,8 @@ $("send").onclick = () => {
 if (location.hash === "#test") {
   const c = { a: { name: "رز بخاري", price: 8, q: 2 }, b: { name: "ماء صغير", price: 0.5, q: 3 } };
   console.assert(total(c) === 17.5, "total");
-  const m = buildMessage(c, { id: "1234", kind: "توصيل", name: "أحمد", phone: "0501234567", addr: "حي الفيصلية", lat: 25.9, lng: 45.3, km: 2.4, fee: 5, note: "" });
-  console.assert(m.includes("رسوم التوصيل: 5 ر.س (المسافة 2.4 كم)") && m.includes("الإجمالي: 22.5 ر.س"), "msg");
+  const m = buildMessage(c, { id: "1234", kind: "توصيل", name: "أحمد", phone: "0501234567", addr: "حي الفيصلية", lat: 25.9, lng: 45.3, km: 2.4, road: true, fee: 5, note: "" });
+  console.assert(m.includes("رسوم التوصيل: 5 ر.س (المسافة 2.4 كم على الطريق)") && m.includes("الإجمالي: 22.5 ر.س"), "msg");
   console.assert([1, 3].every(k => feeFor(k) === 5) && feeFor(3.1) === 10 && feeFor(6) === 10 && feeFor(6.1) === 15 && feeFor(12) === 15 && feeFor(12.1) === null, "tiers");
   console.assert(Math.abs(distKm(REST, { lat: REST.lat + 0.01, lng: REST.lng }) - 1.11) < 0.02, "haversine");
   console.assert(norm("طحينة") === norm("طحينه") && norm("أرز").includes("ارز"), "norm");
