@@ -157,8 +157,8 @@ const total = c => Object.values(c).reduce((s, i) => s + i.price * i.q, 0);
 // ---- التوصيل: الرسوم حسب المسافة من المطعم ----
 // ponytail: مسافة بخط مستقيم (المسافة على الطريق أطول قليلًا). عدّل الشرائح هنا، أو استخدم خدمة مسارات لاحقًا.
 const REST = { lat: 25.9088261, lng: 45.3480399 };
-const TIERS = [[3, 5], [10, 10], [13, 15]]; // [أقصى مسافة بالكم، الرسوم بالريال]
-const MAX_KM = 13;
+const TIERS = [[3, 5], [6, 10], [12, 15]]; // [أقصى مسافة بالكم، الرسوم بالريال]
+const MAX_KM = 12;
 const toRad = d => d * Math.PI / 180;
 function distKm(a, b) {
   const h = Math.sin(toRad(b.lat - a.lat) / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(toRad(b.lng - a.lng) / 2) ** 2;
@@ -284,7 +284,7 @@ if (location.hash === "#test") {
   console.assert(total(c) === 17.5, "total");
   const m = buildMessage(c, { id: "1234", kind: "توصيل", name: "أحمد", phone: "0501234567", addr: "حي الفيصلية", lat: 25.9, lng: 45.3, km: 2.4, fee: 5, note: "" });
   console.assert(m.includes("رسوم التوصيل: 5 ر.س (المسافة 2.4 كم)") && m.includes("الإجمالي: 22.5 ر.س"), "msg");
-  console.assert([2, 3].every(k => feeFor(k) === 5) && feeFor(4) === 10 && feeFor(10) === 10 && feeFor(11) === 15 && feeFor(13) === 15 && feeFor(13.1) === null, "tiers");
+  console.assert([1, 3].every(k => feeFor(k) === 5) && feeFor(3.1) === 10 && feeFor(6) === 10 && feeFor(6.1) === 15 && feeFor(12) === 15 && feeFor(12.1) === null, "tiers");
   console.assert(Math.abs(distKm(REST, { lat: REST.lat + 0.01, lng: REST.lng }) - 1.11) < 0.02, "haversine");
   console.assert(norm("طحينة") === norm("طحينه") && norm("أرز").includes("ارز"), "norm");
   console.log("self-check done");
