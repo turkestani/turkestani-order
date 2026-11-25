@@ -111,6 +111,9 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:24px 16px}
 <script>
 // ponytail: قائمة الطعام والرقم هنا فقط. عدّل الأسعار من هذا الملف مباشرة.
 const WHATSAPP = "966539403811"; // رقم واتساب المندوب بصيغة دولية بدون + (تأكد منه)
+// لإخفاء أصناف: اكتب أسماءها هنا كما هي في القائمة، مثال: const HIDE = ["شوربة", "خبز"];
+// ولإرجاعها امسح اسمها من القائمة. القسم يختفي تلقائيًا لو أُخفيت كل أصنافه.
+const HIDE = [];
 const MENU = [
   ["الشواية", "مع الرز أو سادة", [
     ["حبة دجاج شواية مع الرز",42],["نص دجاج شواية مع الرز",21],["ربع دجاج شواية مع الرز",12],
@@ -185,6 +188,8 @@ function buildMessage(c, f) {
 
 // ---- رسم القائمة ----
 MENU.forEach(([title, hint, items], s) => {
+  items = items.filter(([n]) => !HIDE.includes(n));
+  if (!items.length) return;
   const a = document.createElement("a"); a.href = "#s" + s; a.textContent = title; $("nav").append(a);
   const sec = document.createElement("section"); sec.id = "s" + s; sec.dataset.s = norm(title);
   sec.innerHTML = `<h2></h2>${hint ? '<p class="note"></p>' : ""}`;
