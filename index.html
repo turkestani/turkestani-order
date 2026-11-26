@@ -194,6 +194,7 @@ const WHATSAPP = "966539403811"; // رقم واتساب المندوب بصيغ�
 // ===== وضع الجلسات العائلية: الروابط ?table=1 إلى ?table=8 =====
 const BOOTHS = 8; // عدد الجلسات
 const BOOTH_WHATSAPP = WHATSAPP; // رقم واتساب استقبال الجلسات (حاليًا نفس رقم المندوب؛ يفضّل رقم مستقل للاستقبال)
+const NTFY_TOPIC = "turk-booth-935df044c0905361"; // قناة تنبيه الموظف في تطبيق ntfy (سرّية: لا تشاركها)
 const CALL_COOLDOWN = 60; // ثوانٍ يجب انتظارها بين نداء وآخر من نفس الجلسة
 // لإخفاء أصناف: اكتب أسماءها كما هي في القائمة، مثال: const HIDE = ["شوربة", "خبز"];
 const HIDE = [];
@@ -554,11 +555,22 @@ function updateCallButtons() {
     b.disabled = left > 0; b.textContent = left > 0 ? t("wait")(left) : t(CALLS[k][0]);
   });
 }
+// تنبيه صوتي لجوال الموظف عبر ntfy؛ يرجع true إذا وصل
+function ntfy(title, message) {
+  if (!NTFY_TOPIC) return Promise.resolve(false);
+  return fetch("https://ntfy.sh/", { method: "POST", body: JSON.stringify({ topic: NTFY_TOPIC, title, message, priority: 5, tags: ["bell"] }) })
+    .then(r => r.ok).catch(() => false);
+}
 function callAction(k) {
   if (Date.now() < (store.get(callKey(k)) || 0) + CALL_COOLDOWN * 1000) return; // فترة انتظار ضد الإزعاج
-  store.set(callKey(k), Date.now());
   const msg = `${CALLS[k][2]} جلسة رقم ${TABLE}: ${CALLS[k][1]}` + (SRC ? `\nالمصدر: ${SRC}` : "");
-  window.open(`https://wa.me/${BOOTH_WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
+  ntfy(`${CALLS[k][2]} جلسة ${TABLE}`, CALLS[k][1]).then(ok => {
+    if (!ok) { window.open(`https://wa.me/${BOOTH_WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank"); return; } // احتياط: واتساب
+    const h = $("boothHint"), old = h.textContent;
+    h.textContent = lang === "en" ? "✓ Staff notified, they're on the way" : "✓ وصل النداء، الموظف في الطريق إليكم";
+    setTimeout(() => h.textContent = old, 8000);
+  });
+  store.set(callKey(k), Date.now());
   track("booth-" + k); updateCallButtons();
 }
 function applyBoothUI() {
@@ -667,6 +679,7 @@ $("send").onclick = () => {
   const eta = TABLE ? "" : (ETA[lang] || ETA.ar || "").trim(); $("eta").hidden = !eta; $("eta").textContent = eta ? t("etaLbl") + ": " + eta : "";
   $("rev").hidden = TABLE || !REVIEW_URL; if (REVIEW_URL) $("rev").href = REVIEW_URL;
   track("send-order");
+  if (TABLE) ntfy(`🍽️ طلب جلسة ${TABLE}`, buildMessage(cart, f));
   window.open(lastUrl, "_blank");
 };
 
