@@ -50,6 +50,12 @@ section{scroll-margin-top:120px}
 h2{font-size:18px;margin:22px 0 8px}
 .note{color:var(--mut);font-size:13px;margin:-4px 0 8px}
 .hide,[hidden]{display:none!important}
+#booth{margin:8px auto 0;max-width:640px;padding:12px;border:2px solid var(--brand);border-radius:14px;background:var(--card)}
+#boothTitle{font-size:24px;font-weight:700;text-align:center}
+.bbtns{display:grid;gap:8px;margin-top:10px}
+.bbtn{padding:16px;border:0;border-radius:12px;background:var(--brand);color:var(--brand-ink);font-size:20px;font-weight:600}
+.bbtn:disabled{opacity:.55;cursor:not-allowed}
+#booth .note{margin:8px 0 0;font-size:14px;text-align:center}
 #announce{margin:8px auto 0;max-width:640px;padding:8px 12px;border-radius:10px;background:rgba(156,47,26,.12);border:1px solid var(--brand);font-size:14px;font-weight:600}
 #reorder{display:block;margin:8px auto 0;max-width:640px;width:100%;padding:10px 12px;border:1px solid var(--brand);border-radius:10px;background:none;color:var(--ink);font-size:15px}
 .item .d{color:var(--mut);font-size:13px;margin-top:2px}
@@ -105,6 +111,15 @@ footer .contact a{padding:10px 16px;border:1px solid var(--line);border-radius:2
   <img src="logo.png" alt="" width="96" height="96" style="border-radius:16px;background:#fff">
   <h1 data-t="name"></h1>
   <p data-t="tagline"></p>
+  <div id="booth" hidden>
+    <div id="boothTitle"></div>
+    <div class="bbtns">
+      <button type="button" class="bbtn" data-call="staff"></button>
+      <button type="button" class="bbtn" data-call="bill"></button>
+      <button type="button" class="bbtn" data-call="water"></button>
+    </div>
+    <p class="note" id="boothHint"></p>
+  </div>
   <div id="announce" hidden></div>
   <div id="status" hidden></div>
   <div id="info"></div>
@@ -176,6 +191,10 @@ footer .contact a{padding:10px 16px;border:1px solid var(--line);border-radius:2
 // ===== الإعدادات (عدّلها من هنا) =====
 // ponytail: قائمة الطعام والرقم هنا فقط. عدّل الأسعار من هذا الملف مباشرة.
 const WHATSAPP = "966539403811"; // رقم واتساب المندوب بصيغة دولية بدون +
+// ===== وضع الجلسات العائلية: الروابط ?table=1 إلى ?table=8 =====
+const BOOTHS = 8; // عدد الجلسات
+const BOOTH_WHATSAPP = WHATSAPP; // رقم واتساب استقبال الجلسات (حاليًا نفس رقم المندوب؛ يفضّل رقم مستقل للاستقبال)
+const CALL_COOLDOWN = 60; // ثوانٍ يجب انتظارها بين نداء وآخر من نفس الجلسة
 // لإخفاء أصناف: اكتب أسماءها كما هي في القائمة، مثال: const HIDE = ["شوربة", "خبز"];
 const HIDE = [];
 // ساعات العمل بتوقيت السعودية. null = بدون تحقق. مثال: { open: "11:00", close: "00:30" } (يدعم الإغلاق بعد منتصف الليل)
@@ -289,6 +308,8 @@ const UI = {
     doneOpen: "فتح واتساب مرة ثانية", again: "طلب جديد",
     disc: "خصم أول طلب", reorder: (n, tot) => `🔁 اطلب نفس آخر طلب (${n} · ${tot})`, review2: "⭐ قيّمنا على قوقل", etaLbl: "وقت الوصول المتوقع", sold: "غير متوفر",
     install: "📲 أضف للشاشة الرئيسية", iosHint: "في سفاري: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»", callFee: "أو اتصل بنا لتأكيد الرسوم: 016 431 3396",
+    booth: n => `جلسة رقم ${n}`, callStaff: "🔔 نداء موظف", callBill: "🧾 طلب الحساب", callWater: "💧 ماء وأغراض", wait: s => `انتظر ${s} ثانية`,
+    boothHint: "اضغط الزر ثم «إرسال» داخل واتساب، وسيأتيك الموظف. لطلب أكل اختر من القائمة بالأسفل.", boothDoneP: "اضغط «إرسال» داخل واتساب لإتمام الطلب، وسيصلك الموظف.",
     call: "📞 اتصل بنا", map: "📍 موقعنا", footer: "الدفع كاش عند الاستلام · يتم تأكيد الطلب عبر واتساب",
     openNow: c => `مفتوح الآن · نقفل ${c}`, closedNow: o => `مغلق الآن · نفتح الساعة ${o}`,
     delivInfo: s => `التوصيل: ${s}`, tier: (m, f) => `حتى ${m} كم ${f}`, beyond: m => `ولا يتوفر أكثر من ${m} كم`,
@@ -315,6 +336,8 @@ const UI = {
     doneOpen: "Open WhatsApp again", again: "New order",
     disc: "First-order discount", reorder: (n, tot) => `🔁 Reorder last order (${n} · ${tot})`, review2: "⭐ Rate us on Google", etaLbl: "Estimated arrival", sold: "Unavailable",
     install: "📲 Add to home screen", iosHint: "In Safari: tap Share, then “Add to Home Screen”", callFee: "Or call us to confirm the fee: 016 431 3396",
+    booth: n => `Booth ${n}`, callStaff: "🔔 Call staff", callBill: "🧾 Ask for the bill", callWater: "💧 Water & items", wait: s => `Wait ${s}s`,
+    boothHint: "Tap a button, then press “Send” in WhatsApp and a staff member will come. To order food, pick from the menu below.", boothDoneP: "Press “Send” inside WhatsApp to place the order and a staff member will bring it.",
     call: "📞 Call us", map: "📍 Our location", footer: "Cash on delivery · Order is confirmed via WhatsApp",
     openNow: c => `Open now · closes ${c}`, closedNow: o => `Closed now · opens at ${o}`,
     delivInfo: s => `Delivery: ${s}`, tier: (m, f) => `up to ${m} km ${f}`, beyond: m => `not available beyond ${m} km`,
@@ -334,6 +357,9 @@ try { lang = localStorage.getItem("ord_lang") === "en" ? "en" : "ar"; } catch (e
 const t = k => UI[lang][k];
 const nm = n => (lang === "en" && EN[n]) || n;
 const $ = id => document.getElementById(id);
+const parseTable = (search, max) => { const n = Number(new URLSearchParams(search).get("table")); return Number.isInteger(n) && n >= 1 && n <= max ? n : 0; };
+const TABLE = parseTable(location.search, BOOTHS); // 0 = وضع العملاء العادي
+const CK = TABLE ? "ord_cart_t" : "ord_cart"; // سلة منفصلة للجلسات
 const norm = s => s.replace(/[ً-ٰٟـ]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").toLowerCase();
 const fmt = n => (Math.round(n * 100) / 100).toString().replace(/\.0+$/, "") + " " + t("cur");
 
@@ -367,12 +393,12 @@ const nowMin = () => {
 const fmtT = s => { let [h, m] = s.split(":").map(Number); const pm = h >= 12; h = h % 12 || 12; return `${h}:${String(m).padStart(2, "0")} ${lang === "ar" ? (pm ? "م" : "ص") : (pm ? "PM" : "AM")}`; };
 function buildMessage(c, f) { // الرسالة دائمًا بالعربية للمطعم والمندوب
   const lines = Object.values(c).filter(i => i.q).map(i => `${i.q} × ${i.name} = ${fmtAr(i.price * i.q)}`);
-  const del = f.kind === "توصيل", sub = total(c), fee = del ? f.fee : 0, disc = f.disc || 0;
+  const booth = f.kind === "جلسة", del = f.kind === "توصيل", sub = total(c), fee = del ? f.fee : 0, disc = f.disc || 0;
   return [
     `طلب جديد #${f.id}`,
-    `النوع: ${f.kind}`,
-    `الاسم: ${f.name}`,
-    `الجوال: ${f.phone}`,
+    booth ? `النوع: جلسة عائلية رقم ${f.table}` : `النوع: ${f.kind}`,
+    booth ? null : `الاسم: ${f.name}`,
+    booth ? null : `الجوال: ${f.phone}`,
     del && f.addr ? `العنوان: ${f.addr}` : null,
     del ? `الموقع: https://maps.google.com/?q=${f.lat},${f.lng}` : null,
     "-----",
@@ -382,7 +408,7 @@ function buildMessage(c, f) { // الرسالة دائمًا بالعربية ل
     disc ? `خصم أول طلب (${FIRST_ORDER_PCT}%): -${fmtAr(disc)}` : null,
     del ? `رسوم التوصيل: ${fmtAr(fee)} (المسافة ${f.km} كم ${f.road ? "على الطريق" : "تقديرية"})` : null,
     `الإجمالي: ${fmtAr(sub - disc + fee)} (شامل الضريبة)`,
-    "الدفع: كاش عند الاستلام",
+    booth ? "الدفع: عند الحساب" : "الدفع: كاش عند الاستلام",
     f.src ? `المصدر: ${f.src}` : null,
   ].filter(Boolean).join("\n");
 }
@@ -402,7 +428,7 @@ const SRC = (() => {
     const o = store.get("ord_src"); return o && Date.now() - o.t < 24 * 3600 * 1000 ? o.s : "";
   } catch (e) { return ""; }
 })();
-const saveCart = () => Object.keys(cart).length ? store.set("ord_cart", { t: Date.now(), cart }) : store.del("ord_cart");
+const saveCart = () => Object.keys(cart).length ? store.set(CK, { t: Date.now(), cart }) : store.del(CK);
 
 // ===== رسم القائمة =====
 const ITEM = {}; // اسم عربي -> {key, price, set(n)}
@@ -468,7 +494,7 @@ function refresh() {
 
 // ===== معلومات أعلى الصفحة: ساعات العمل ورسوم التوصيل =====
 function renderReorder() {
-  const b = $("reorder"), last = store.get("ord_last");
+  const b = $("reorder"), last = TABLE ? null : store.get("ord_last");
   if (!last || !last.items || Object.keys(cart).length) { b.hidden = true; return; }
   const items = last.items.filter(i => ITEM[i.name] && !SOLDOUT.includes(i.name));
   if (!items.length) { b.hidden = true; return; }
@@ -478,6 +504,7 @@ function renderReorder() {
 }
 function renderTop() {
   const an = $("announce"), at = (ANNOUNCE[lang] || ANNOUNCE.ar || "").trim(); an.hidden = !at; an.textContent = at;
+  if (TABLE) { $("info").hidden = true; $("status").hidden = true; return; } // الجلسات: لا توصيل ولا ساعات
   const parts = TIERS.map(([m, f]) => t("tier")(m, fmt(f)));
   $("info").textContent = t("delivInfo")(parts.join(" · ") + " · " + t("beyond")(MAX_KM)) + (MIN_ORDER ? " · " + t("minOrder")(fmt(MIN_ORDER)) : "");
   const st = $("status");
@@ -497,6 +524,7 @@ function applyLang() {
   $("q").placeholder = t("search"); $("q").setAttribute("aria-label", t("search"));
   $("lang").textContent = lang === "ar" ? "EN" : "عربي";
   $("map").setAttribute("aria-label", t("map"));
+  applyBoothUI();
 }
 function setLang(l) {
   const keep = JSON.parse(JSON.stringify(cart));
@@ -517,10 +545,36 @@ $("install").onclick = async () => { if (installEvt) { installEvt.prompt(); inst
 function track(name) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: "event/" + name, title: name, event: true }); } catch (e) {} }
 if (GOATCOUNTER) { const sc = document.createElement("script"); sc.async = true; sc.dataset.goatcounter = `https://${GOATCOUNTER}.goatcounter.com/count`; sc.src = "https://gc.zgo.at/count.js"; document.head.append(sc); }
 
+// ===== وضع الجلسات: نداء الموظف =====
+const CALLS = { staff: ["callStaff", "نداء موظف", "🔔"], bill: ["callBill", "طلب الحساب", "🧾"], water: ["callWater", "ماء وأغراض", "💧"] };
+const callKey = k => "ord_call_" + k + "_" + TABLE;
+function updateCallButtons() {
+  document.querySelectorAll("#booth .bbtn").forEach(b => {
+    const k = b.dataset.call, last = store.get(callKey(k)) || 0, left = Math.ceil((last + CALL_COOLDOWN * 1000 - Date.now()) / 1000);
+    b.disabled = left > 0; b.textContent = left > 0 ? t("wait")(left) : t(CALLS[k][0]);
+  });
+}
+function callAction(k) {
+  if (Date.now() < (store.get(callKey(k)) || 0) + CALL_COOLDOWN * 1000) return; // فترة انتظار ضد الإزعاج
+  store.set(callKey(k), Date.now());
+  const msg = `${CALLS[k][2]} جلسة رقم ${TABLE}: ${CALLS[k][1]}` + (SRC ? `\nالمصدر: ${SRC}` : "");
+  window.open(`https://wa.me/${BOOTH_WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
+  track("booth-" + k); updateCallButtons();
+}
+function applyBoothUI() {
+  if (!TABLE) return;
+  $("booth").hidden = false; $("boothTitle").textContent = t("booth")(TABLE); $("boothHint").textContent = t("boothHint");
+  document.querySelectorAll('[data-t="kind"], .seg, label[for="nm"], #nm, label[for="ph"], #ph, #addrBox').forEach(e => e.hidden = true);
+  const dp = document.querySelector('#done p[data-t="doneP"]'); if (dp) dp.textContent = t("boothDoneP");
+  updateCallButtons();
+}
+document.querySelectorAll("#booth .bbtn").forEach(b => b.onclick = () => callAction(b.dataset.call));
+if (TABLE) setInterval(updateCallButtons, 1000);
+
 // ===== مراجعة وإرسال =====
 let loc = null; // {lat, lng, km, road, fee}
 let lastUrl = "";
-const kind = () => document.querySelector('input[name=kind]:checked').value;
+const kind = () => TABLE ? "جلسة" : document.querySelector('input[name=kind]:checked').value;
 const setDist = (tx, bad, call) => {
   const d = $("dist"); d.textContent = tx; d.classList.toggle("bad", !!bad);
   if (call) { const a = document.createElement("a"); a.href = "tel:+966164313396"; a.textContent = " " + t("callFee"); d.append(a); }
@@ -550,7 +604,7 @@ function afterEdit() { if (!Object.keys(cart).length) return $("dlg").close(); r
 const isFirst = () => !store.get("ord_last");
 function renderTotals() {
   const del = kind() === "توصيل", fee = del && loc && loc.fee != null ? loc.fee : 0;
-  const disc = discountFor(total(cart), isFirst());
+  const disc = TABLE ? 0 : discountFor(total(cart), isFirst());
   $("sub").textContent = fmt(total(cart));
   $("discLine").hidden = !disc; $("disc").textContent = disc ? "-" + fmt(disc) : "";
   $("feeLine").hidden = !del;
@@ -560,7 +614,7 @@ function renderTotals() {
 }
 document.querySelectorAll('input[name=kind]').forEach(r => r.onchange = () => { $("addrBox").hidden = kind() !== "توصيل"; $("err").textContent = ""; renderTotals(); });
 $("open").onclick = () => {
-  const c = store.get("ord_cust"); if (c) { $("nm").value = c.name || ""; $("ph").value = c.phone || ""; $("ad").value = c.addr || ""; }
+  const c = TABLE ? null : store.get("ord_cust"); if (c) { $("nm").value = c.name || ""; $("ph").value = c.phone || ""; $("ad").value = c.addr || ""; }
   $("formBody").hidden = false; $("done").hidden = true;
   renderLines(); renderTotals(); renderTop(); $("err").textContent = ""; $("dlg").showModal(); track("open-review");
 };
@@ -593,29 +647,32 @@ $("loc").onclick = () => {
 };
 $("send").onclick = () => {
   const f = { kind: kind(), src: SRC, name: $("nm").value.trim(), phone: $("ph").value.trim().replace(/[\s-]/g, ""), addr: $("ad").value.trim(), id: String(Date.now()).slice(-4) };
-  if (!openAt(HOURS, nowMin())) return $("err").textContent = t("eClosed");
-  if (!f.name) return $("err").textContent = t("eName");
-  if (!/^(05\d{8}|9665\d{8})$/.test(f.phone)) return $("err").textContent = t("ePhone");
-  if (f.kind === "توصيل") {
-    if (MIN_ORDER && total(cart) < MIN_ORDER) return $("err").textContent = t("eMin")(fmt(MIN_ORDER));
-    if (!loc) return $("err").textContent = t("eLoc");
-    if (loc.fee == null) return $("err").textContent = t("eFar")(MAX_KM);
-    Object.assign(f, loc);
+  if (TABLE) { f.kind = "جلسة"; f.table = TABLE; f.disc = 0; }
+  else {
+    if (!openAt(HOURS, nowMin())) return $("err").textContent = t("eClosed");
+    if (!f.name) return $("err").textContent = t("eName");
+    if (!/^(05\d{8}|9665\d{8})$/.test(f.phone)) return $("err").textContent = t("ePhone");
+    if (f.kind === "توصيل") {
+      if (MIN_ORDER && total(cart) < MIN_ORDER) return $("err").textContent = t("eMin")(fmt(MIN_ORDER));
+      if (!loc) return $("err").textContent = t("eLoc");
+      if (loc.fee == null) return $("err").textContent = t("eFar")(MAX_KM);
+      Object.assign(f, loc);
+    }
+    f.disc = discountFor(total(cart), isFirst());
+    store.set("ord_cust", { name: f.name, phone: f.phone, addr: f.addr });
   }
-  f.disc = discountFor(total(cart), isFirst());
-  store.set("ord_cust", { name: f.name, phone: f.phone, addr: f.addr });
-  lastUrl = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(buildMessage(cart, f))}`;
-  store.set("ord_last", { t: Date.now(), items: Object.values(cart).map(i => ({ name: i.name, q: i.q })) });
+  lastUrl = `https://wa.me/${TABLE ? BOOTH_WHATSAPP : WHATSAPP}?text=${encodeURIComponent(buildMessage(cart, f))}`;
+  if (!TABLE) store.set("ord_last", { t: Date.now(), items: Object.values(cart).map(i => ({ name: i.name, q: i.q })) });
   $("wa").href = lastUrl; $("formBody").hidden = true; $("done").hidden = false;
-  const eta = (ETA[lang] || ETA.ar || "").trim(); $("eta").hidden = !eta; $("eta").textContent = eta ? t("etaLbl") + ": " + eta : "";
-  $("rev").hidden = !REVIEW_URL; if (REVIEW_URL) $("rev").href = REVIEW_URL;
+  const eta = TABLE ? "" : (ETA[lang] || ETA.ar || "").trim(); $("eta").hidden = !eta; $("eta").textContent = eta ? t("etaLbl") + ": " + eta : "";
+  $("rev").hidden = TABLE || !REVIEW_URL; if (REVIEW_URL) $("rev").href = REVIEW_URL;
   track("send-order");
   window.open(lastUrl, "_blank");
 };
 
 // ===== تشغيل =====
 applyLang(); renderMenu();
-(function restore() { const s = store.get("ord_cart"); if (s && s.cart && Date.now() - s.t < 6 * 3600 * 1000) applyCart(s.cart); else store.del("ord_cart"); })();
+(function restore() { const s = store.get(CK); if (s && s.cart && Date.now() - s.t < 6 * 3600 * 1000) applyCart(s.cart); else store.del(CK); })();
 renderTop(); renderReorder(); refresh(); setInterval(renderTop, 60000);
 
 // فحص ذاتي: افتح الصفحة بـ #test وانظر الكونسول
@@ -629,6 +686,9 @@ if (location.hash === "#test") {
   const H = { open: "11:00", close: "00:30" };
   console.assert(openAt(H, 720) && openAt(H, 10) && !openAt(H, 180) && !openAt(H, 659) && openAt(H, 660) && !openAt(H, 30) && openAt(null, 0), "hours");
   console.assert(norm("طحينة") === norm("طحينه"), "norm");
+  console.assert(parseTable("?table=5", 8) === 5 && parseTable("?table=8", 8) === 8 && parseTable("?table=0", 8) === 0 && parseTable("?table=9", 8) === 0 && parseTable("?table=abc", 8) === 0 && parseTable("?table=3.5", 8) === 0 && parseTable("", 8) === 0, "table");
+  const mb = buildMessage({ a: { name: "رز", price: 8, q: 1 } }, { id: "1", kind: "جلسة", table: 5 });
+  console.assert(mb.includes("جلسة عائلية رقم 5") && !mb.includes("الجوال") && !mb.includes("رسوم التوصيل") && mb.includes("الدفع: عند الحساب"), "booth msg");
   console.assert(isRamadan(new Date("2026-03-01T12:00:00+03:00")) && !isRamadan(new Date("2026-11-26T12:00:00+03:00")) && isRamadan(new Date("2027-02-20T12:00:00+03:00")) && !isRamadan(new Date("2027-04-01T12:00:00+03:00")), "ramadan");
   console.assert(buildMessage({ a: { name: "رز", price: 8, q: 1 } }, { id: "1", kind: "استلام من المطعم", name: "س", phone: "0500000000", src: "google_profile" }).includes("المصدر: google_profile"), "src");
   console.assert(discountFor(100, true) === (FIRST_ORDER_PCT ? FIRST_ORDER_PCT : 0) && discountFor(100, false) === 0, "disc");
