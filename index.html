@@ -414,6 +414,67 @@ function buildMessage(c, f) { // الرسالة دائمًا بالعربية ل
     f.src ? `المصدر: ${f.src}` : null,
   ].filter(Boolean).join("\n");
 }
+// إيصال مصوّر (صورة PNG) يُرسل لتيليجرام: شعار، نوع الطلب، أصناف، إجمالي
+async function drawReceipt(c, f) {
+  const FONT = '"Segoe UI", Tahoma, "Noto Naskh Arabic", system-ui, sans-serif', BR = "#9c2f1a", INK = "#2b2118", MUTE = "#7a6a5c";
+  const booth = f.kind === "جلسة", del = f.kind === "توصيل";
+  const items = Object.values(c).filter(i => i.q), sub = total(c), fee = del ? f.fee : 0, disc = f.disc || 0;
+  const time = new Intl.DateTimeFormat("ar-SA", { timeZone: "Asia/Riyadh", hour: "numeric", minute: "2-digit", day: "numeric", month: "short" }).format(new Date());
+  const info = booth ? [] : [["الاسم", f.name], ["الجوال", f.phone], del && f.addr ? ["العنوان", f.addr] : null, del ? ["المسافة", `${f.km} كم ${f.road ? "على الطريق" : "تقديرية"}`] : null].filter(Boolean);
+  const sums = [["مجموع الأصناف", fmtAr(sub)], disc ? [`خصم أول طلب (${FIRST_ORDER_PCT}%)`, "-" + fmtAr(disc)] : null, del ? ["رسوم التوصيل", fmtAr(fee)] : null].filter(Boolean);
+  const W = 720, P = 40, ROW = 54, H = 300 + info.length * 42 + items.length * ROW + sums.length * 44 + 190;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const x = cv.getContext("2d"); x.direction = "rtl";
+  const logo = await new Promise(r => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = "logo.png"; });
+  const txt = (t, px, py, o = {}) => {
+    x.font = `${o.w || 500} ${o.s || 26}px ${FONT}`; x.fillStyle = o.c || INK; x.textAlign = o.a || "right";
+    let s = o.s || 26; while (o.max && x.measureText(t).width > o.max && s > 16) { s -= 2; x.font = `${o.w || 500} ${s}px ${FONT}`; }
+    x.fillText(t, px, py);
+  };
+  x.fillStyle = "#fff"; x.fillRect(0, 0, W, H);
+  x.fillStyle = BR; x.fillRect(0, 0, W, 14);
+  let y = 40;
+  if (logo) { x.drawImage(logo, W / 2 - 45, y, 90, 90); y += 108; }
+  txt("التركستاني للبخاري", W / 2, y + 22, { a: "center", w: 700, s: 32 });
+  y += 62;
+  const title = booth ? `جلسة رقم ${f.table}` : del ? "طلب توصيل" : "استلام من المطعم";
+  x.fillStyle = BR; x.beginPath(); x.roundRect(P, y, W - 2 * P, 78, 16); x.fill();
+  txt(title, W / 2, y + 54, { a: "center", w: 800, s: 44, c: "#fff" });
+  y += 108;
+  txt(`${time}`, W - P, y, { s: 22, c: MUTE }); txt(`طلب #${f.id}`, P, y, { s: 22, c: MUTE, a: "left" });
+  y += 30;
+  const line = () => { x.strokeStyle = "#d9cfc4"; x.setLineDash([8, 6]); x.beginPath(); x.moveTo(P, y); x.lineTo(W - P, y); x.stroke(); x.setLineDash([]); y += 28; };
+  line();
+  info.forEach(([k, v]) => { txt(k, W - P, y + 8, { s: 22, c: MUTE }); txt(v, P, y + 8, { a: "left", w: 600, s: 24, max: W - 2 * P - 130 }); y += 42; });
+  if (info.length) { y -= 6; line(); }
+  items.forEach((i, n) => {
+    if (n % 2 === 0) { x.fillStyle = "#faf5ef"; x.fillRect(P - 10, y - 6, W - 2 * P + 20, ROW); }
+    txt(`${i.q} ×`, W - P, y + 30, { w: 800, s: 28, c: BR });
+    txt(i.name, W - P - 70, y + 30, { s: 26, max: W - 2 * P - 260 });
+    txt(fmtAr(i.price * i.q), P, y + 30, { a: "left", w: 600, s: 26 });
+    y += ROW;
+  });
+  y += 10; line();
+  sums.forEach(([k, v]) => { txt(k, W - P, y + 6, { s: 24, c: MUTE }); txt(v, P, y + 6, { a: "left", s: 24 }); y += 44; });
+  y += 4;
+  x.fillStyle = "#fbeee8"; x.beginPath(); x.roundRect(P - 10, y - 6, W - 2 * P + 20, 76, 14); x.fill();
+  txt("الإجمالي", W - P, y + 46, { w: 800, s: 32, c: BR }); txt(fmtAr(sub - disc + fee), P, y + 46, { a: "left", w: 800, s: 38, c: BR });
+  y += 104;
+  txt(booth ? "💳 الدفع عند الحساب" : "💳 الدفع كاش عند الاستلام", W / 2, y, { a: "center", s: 24 });
+  txt("الأسعار شاملة ضريبة القيمة المضافة", W / 2, y + 36, { a: "center", s: 20, c: MUTE });
+  return new Promise(r => cv.toBlob(r, "image/png"));
+}
+// يرسل الإيصال صورةً لتيليجرام مع عنوان نصي يظهر في الإشعار؛ يرجع true عند النجاح
+async function sendReceipt(c, f) {
+  if (!TG_TOKEN) return false;
+  try {
+    const sub = total(c) - (f.disc || 0) + (f.kind === "توصيل" ? f.fee : 0);
+    const cap = (f.kind === "جلسة" ? `🍽️ جلسة ${f.table} · طلب جديد` : f.kind === "توصيل" ? `🛵 توصيل · ${f.name}` : `🛍️ استلام · ${f.name}`) + ` · ${fmtAr(sub)}` +
+      (f.kind === "توصيل" ? `\nhttps://maps.google.com/?q=${f.lat},${f.lng}` : "");
+    const fd = new FormData(); fd.append("chat_id", TG_CHAT); fd.append("caption", cap); fd.append("photo", await drawReceipt(c, f), "order.png");
+    return (await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, { method: "POST", body: fd })).ok;
+  } catch (e) { return false; }
+}
 const fmtAr = n => (Math.round(n * 100) / 100).toString().replace(/\.0+$/, "") + " ر.س";
 
 // ===== حفظ محلي (سلة + بيانات العميل) =====
@@ -557,9 +618,9 @@ function updateCallButtons() {
   });
 }
 // تنبيه صوتي لجوال الموظف عبر ntfy؛ يرجع true إذا وصل
-function ntfy(title, message) {
+function ntfy(title, message, html) {
   const jobs = [];
-  if (TG_TOKEN) jobs.push(fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, { method: "POST", body: new URLSearchParams({ chat_id: TG_CHAT, text: title + "\n" + message }) }).then(r => r.ok).catch(() => false));
+  if (TG_TOKEN) jobs.push(fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, { method: "POST", body: new URLSearchParams(html ? { chat_id: TG_CHAT, text: html, parse_mode: "HTML" } : { chat_id: TG_CHAT, text: title + "\n" + message }) }).then(r => r.ok).catch(() => false));
   if (NTFY_TOPIC) jobs.push(fetch("https://ntfy.sh/", { method: "POST", body: JSON.stringify({ topic: NTFY_TOPIC, title, message, priority: 5, tags: ["bell"] }) }).then(r => r.ok).catch(() => false));
   return Promise.all(jobs).then(r => r.some(Boolean));
 }
@@ -681,7 +742,7 @@ $("send").onclick = () => {
   const eta = TABLE ? "" : (ETA[lang] || ETA.ar || "").trim(); $("eta").hidden = !eta; $("eta").textContent = eta ? t("etaLbl") + ": " + eta : "";
   $("rev").hidden = TABLE || !REVIEW_URL; if (REVIEW_URL) $("rev").href = REVIEW_URL;
   track("send-order");
-  if (TABLE) ntfy(`🍽️ طلب جلسة ${TABLE}`, buildMessage(cart, f));
+  sendReceipt(cart, f).then(ok => { if (!ok && TABLE) ntfy(`🍽️ طلب جلسة ${TABLE}`, buildMessage(cart, f)); }); // الإيصال صورة؛ إن فشل نص بسيط
   window.open(lastUrl, "_blank");
 };
 
