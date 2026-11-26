@@ -56,6 +56,20 @@ h2{font-size:18px;margin:22px 0 8px}
 .bbtn{padding:16px;border:0;border-radius:12px;background:var(--brand);color:var(--brand-ink);font-size:20px;font-weight:600}
 .bbtn:disabled{opacity:.55;cursor:not-allowed}
 #booth .note{margin:8px 0 0;font-size:14px;text-align:center}
+#billDlg{width:min(92vw,420px);border:2px solid var(--brand);border-radius:16px;background:var(--card);color:var(--ink);padding:16px}
+#billDlg::backdrop{background:rgba(0,0,0,.55)}
+#billDlg h3{margin:0 0 8px;text-align:center}
+#billDlg .bl>div{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px dashed var(--line)}
+#billDlg .bt{font-size:20px;color:var(--brand);border:0!important}
+#billDlg .pm{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+#billDlg .pm label{padding:14px;border:2px solid var(--line);border-radius:12px;text-align:center;font-size:18px;font-weight:600}
+#billDlg .pm label:has(input:checked){border-color:var(--brand);background:rgba(156,47,26,.12)}
+#billDlg .chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+#billDlg .chips button{padding:10px 14px;border:1px solid var(--brand);border-radius:10px;background:none;color:var(--ink);font-size:17px}
+#billDlg input[type=number]{width:100%;padding:10px;font-size:18px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+#billDlg .bact{display:grid;gap:8px;margin-top:10px}
+#billDlg .bx{padding:12px;border:0;background:none;color:var(--mut);font-size:16px}
+#billDlg .err{color:var(--bad);font-weight:600;min-height:1.2em}
 #announce{margin:8px auto 0;max-width:640px;padding:8px 12px;border-radius:10px;background:rgba(156,47,26,.12);border:1px solid var(--brand);font-size:14px;font-weight:600}
 #reorder{display:block;margin:8px auto 0;max-width:640px;width:100%;padding:10px 12px;border:1px solid var(--brand);border-radius:10px;background:none;color:var(--ink);font-size:15px}
 .item .d{color:var(--mut);font-size:13px;margin-top:2px}
@@ -120,6 +134,7 @@ footer .contact a{padding:10px 16px;border:1px solid var(--line);border-radius:2
     </div>
     <p class="note" id="boothHint"></p>
   </div>
+  <dialog id="billDlg"></dialog>
   <div id="announce" hidden></div>
   <div id="status" hidden></div>
   <div id="info"></div>
@@ -420,8 +435,9 @@ async function drawReceipt(c, f) {
   const booth = f.kind === "جلسة", del = f.kind === "توصيل";
   const items = Object.values(c).filter(i => i.q), sub = total(c), fee = del ? f.fee : 0, disc = f.disc || 0;
   const time = new Intl.DateTimeFormat("ar-SA", { timeZone: "Asia/Riyadh", hour: "numeric", minute: "2-digit", day: "numeric", month: "short" }).format(new Date());
-  const info = booth ? [] : [["الاسم", f.name], ["الجوال", f.phone], del && f.addr ? ["العنوان", f.addr] : null, del ? ["المسافة", `${f.km} كم ${f.road ? "على الطريق" : "تقديرية"}`] : null].filter(Boolean);
+  const info = f.bill ? [["الدفع", f.pay === "card" ? "💳 شبكة (أحضروا الجهاز)" : "💵 كاش"], f.pay === "cash" && f.cash ? ["مع الزبون", fmtAr(f.cash)] : null, f.pay === "cash" && f.cash ? ["الصرف المطلوب", fmtAr(f.change)] : null].filter(Boolean) : booth ? [] : [["الاسم", f.name], ["الجوال", f.phone], del && f.addr ? ["العنوان", f.addr] : null, del ? ["المسافة", `${f.km} كم ${f.road ? "على الطريق" : "تقديرية"}`] : null].filter(Boolean);
   const sums = [["مجموع الأصناف", fmtAr(sub)], disc ? [`خصم أول طلب (${FIRST_ORDER_PCT}%)`, "-" + fmtAr(disc)] : null, del ? ["رسوم التوصيل", fmtAr(fee)] : null].filter(Boolean);
+  if (sums.length === 1) sums.length = 0; // لا نكرر المجموع إذا هو نفس الإجمالي
   const W = 720, P = 40, ROW = 54, H = 300 + info.length * 42 + items.length * ROW + sums.length * 44 + 190;
   const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const x = cv.getContext("2d"); x.direction = "rtl";
@@ -437,7 +453,7 @@ async function drawReceipt(c, f) {
   if (logo) { x.drawImage(logo, W / 2 - 45, y, 90, 90); y += 108; }
   txt("التركستاني للبخاري", W / 2, y + 22, { a: "center", w: 700, s: 32 });
   y += 62;
-  const title = booth ? `جلسة رقم ${f.table}` : del ? "طلب توصيل" : "استلام من المطعم";
+  const title = f.bill ? `الحساب · جلسة ${f.table}` : booth ? `جلسة رقم ${f.table}` : del ? "طلب توصيل" : "استلام من المطعم";
   x.fillStyle = BR; x.beginPath(); x.roundRect(P, y, W - 2 * P, 78, 16); x.fill();
   txt(title, W / 2, y + 54, { a: "center", w: 800, s: 44, c: "#fff" });
   y += 108;
@@ -460,7 +476,7 @@ async function drawReceipt(c, f) {
   x.fillStyle = "#fbeee8"; x.beginPath(); x.roundRect(P - 10, y - 6, W - 2 * P + 20, 76, 14); x.fill();
   txt("الإجمالي", W - P, y + 46, { w: 800, s: 32, c: BR }); txt(fmtAr(sub - disc + fee), P, y + 46, { a: "left", w: 800, s: 38, c: BR });
   y += 104;
-  txt(booth ? "💳 الدفع عند الحساب" : "💳 الدفع كاش عند الاستلام", W / 2, y, { a: "center", s: 24 });
+  txt(f.bill ? "🧾 الإجمالي حسب طلبات الجلسة من الصفحة" : booth ? "💳 الدفع عند الحساب" : "💳 الدفع كاش عند الاستلام", W / 2, y, { a: "center", s: 24 });
   txt("الأسعار شاملة ضريبة القيمة المضافة", W / 2, y + 36, { a: "center", s: 20, c: MUTE });
   return new Promise(r => cv.toBlob(r, "image/png"));
 }
@@ -469,7 +485,7 @@ async function sendReceipt(c, f) {
   if (!TG_TOKEN) return false;
   try {
     const sub = total(c) - (f.disc || 0) + (f.kind === "توصيل" ? f.fee : 0);
-    const cap = (f.kind === "جلسة" ? `🍽️ جلسة ${f.table} · طلب جديد` : f.kind === "توصيل" ? `🛵 توصيل · ${f.name}` : `🛍️ استلام · ${f.name}`) + ` · ${fmtAr(sub)}` +
+    const cap = f.bill ? `🧾 جلسة ${f.table} · الحساب · ` + (f.pay === "card" ? "شبكة 💳 أحضر الجهاز" : `كاش 💵 جهّز صرف ${fmtAr(f.change || 0)}`) : (f.kind === "جلسة" ? `🍽️ جلسة ${f.table} · طلب جديد` : f.kind === "توصيل" ? `🛵 توصيل · ${f.name}` : `🛍️ استلام · ${f.name}`) + (f.bill ? "" : ` · ${fmtAr(sub)}`) +
       (f.kind === "توصيل" ? `\nhttps://maps.google.com/?q=${f.lat},${f.lng}` : "");
     const fd = new FormData(); fd.append("chat_id", TG_CHAT); fd.append("caption", cap); fd.append("photo", await drawReceipt(c, f), "order.png");
     return (await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, { method: "POST", body: fd })).ok;
@@ -643,7 +659,40 @@ function applyBoothUI() {
   const dp = document.querySelector('#done p[data-t="doneP"]'); if (dp) dp.textContent = t("boothDoneP");
   updateCallButtons();
 }
-document.querySelectorAll("#booth .bbtn").forEach(b => b.onclick = () => callAction(b.dataset.call));
+// ===== طلب الحساب: فاتورة الجلسة + شبكة/كاش =====
+const L = (a, e) => lang === "en" ? e : a;
+function boothRec() { const r = store.get("ord_booth_" + TABLE); return r && Date.now() - r.t < 5 * 3600 * 1000 ? r : { t: Date.now(), items: {} }; }
+function openBill() {
+  const rec = boothRec(), items = Object.values(rec.items).filter(i => i.q), sub = total(rec.items), d = $("billDlg");
+  let pay = "card", cash = 0;
+  const chips = [...new Set([Math.ceil(sub), 50, 100, 200, 500].filter(v => !items.length || v >= sub))];
+  d.innerHTML = `<h3>${L("🧾 فاتورة", "🧾 Bill")} · ${t("booth")(TABLE)}</h3>` +
+    (items.length ? `<div class="bl">${items.map(i => `<div><span>${i.q} × ${i.name}</span><b>${fmtAr(i.price * i.q)}</b></div>`).join("")}<div class="bt"><span>${L("الإجمالي", "Total")}</span><b>${fmtAr(sub)}</b></div></div><p class="note">${L("حسب طلباتكم من هذه الصفحة، والموظف يؤكد المبلغ.", "Based on your orders from this page; staff will confirm.")}</p>`
+      : `<p class="note">${L("ما طلبتم من الصفحة، الموظف يحسب لكم الفاتورة.", "No orders from this page; staff will prepare your bill.")}</p>`) +
+    `<div class="pm"><label><input type="radio" name="pay" value="card" checked> 💳 ${L("شبكة", "Card")}</label><label><input type="radio" name="pay" value="cash"> 💵 ${L("كاش", "Cash")}</label></div>` +
+    `<div id="cashBox" hidden><div>${L("كم المبلغ اللي معكم؟", "How much cash do you have?")}</div><div class="chips">${chips.map(v => `<button type="button" data-v="${v}">${v}</button>`).join("")}</div><input id="cashIn" type="number" inputmode="decimal" min="0" placeholder="${L("أو اكتبوا المبلغ", "or type the amount")}"><div id="chg" class="note"></div></div>` +
+    `<div id="billErr" class="err"></div><div class="bact"><button type="button" id="billGo" class="bbtn">${L("اطلب الحساب", "Request bill")}</button><button type="button" id="billX" class="bx">${L("إلغاء", "Cancel")}</button></div>`;
+  const upd = () => { cash = parseFloat($("cashIn").value) || 0; $("chg").textContent = cash && items.length ? (cash >= sub ? L("الباقي لكم: ", "Your change: ") + fmtAr(cash - sub) : L("المبلغ أقل من الفاتورة", "Amount is less than the bill")) : ""; };
+  d.querySelectorAll("input[name=pay]").forEach(r => r.onchange = () => { pay = r.value; $("cashBox").hidden = pay !== "cash"; });
+  d.querySelectorAll(".chips button").forEach(b => b.onclick = () => { $("cashIn").value = b.dataset.v; upd(); });
+  $("cashIn").oninput = upd; $("billX").onclick = () => d.close();
+  $("billGo").onclick = async () => {
+    if (pay === "cash" && !cash) return $("billErr").textContent = L("اكتبوا المبلغ اللي معكم", "Enter the cash amount");
+    if (pay === "cash" && items.length && cash < sub) return $("billErr").textContent = L("المبلغ أقل من الفاتورة", "Amount is less than the bill");
+    $("billGo").disabled = true;
+    const f = { kind: "جلسة", table: TABLE, id: String(Date.now()).slice(-4), bill: true, pay, cash: pay === "cash" ? cash : 0, change: pay === "cash" && items.length ? cash - sub : 0, disc: 0 };
+    let ok = items.length ? await sendReceipt(rec.items, f) : false;
+    if (!ok) {
+      const msg = `🧾 جلسة ${TABLE}: طلب الحساب\n` + (pay === "card" ? "الدفع: شبكة (أحضر الجهاز)" : `الدفع: كاش، مع الزبون ${fmtAr(cash)}` + (items.length ? `، الصرف المطلوب ${fmtAr(cash - sub)}` : "")) + (items.length ? `\nالإجمالي: ${fmtAr(sub)}` : "");
+      ok = await ntfy(`🧾 جلسة ${TABLE}`, msg);
+      if (!ok) window.open(`https://wa.me/${BOOTH_WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank");
+    }
+    store.set(callKey("bill"), Date.now()); store.del("ord_booth_" + TABLE); track("booth-bill"); updateCallButtons(); d.close();
+    const h = $("boothHint"), old = h.textContent; h.textContent = L("✓ وصل طلب الحساب، الموظف في الطريق إليكم", "✓ Bill requested, staff is on the way"); setTimeout(() => h.textContent = old, 8000);
+  };
+  d.showModal();
+}
+document.querySelectorAll("#booth .bbtn").forEach(b => b.onclick = () => b.dataset.call === "bill" ? openBill() : callAction(b.dataset.call));
 if (TABLE) setInterval(updateCallButtons, 1000);
 
 // ===== مراجعة وإرسال =====
@@ -742,6 +791,7 @@ $("send").onclick = () => {
   const eta = TABLE ? "" : (ETA[lang] || ETA.ar || "").trim(); $("eta").hidden = !eta; $("eta").textContent = eta ? t("etaLbl") + ": " + eta : "";
   $("rev").hidden = TABLE || !REVIEW_URL; if (REVIEW_URL) $("rev").href = REVIEW_URL;
   track("send-order");
+  if (TABLE) { const r = boothRec(); Object.values(cart).filter(i => i.q).forEach(i => { const o = r.items[i.name] || (r.items[i.name] = { name: i.name, price: i.price, q: 0 }); o.q += i.q; }); r.t = Date.now(); store.set("ord_booth_" + TABLE, r); }
   sendReceipt(cart, f).then(ok => { if (!ok && TABLE) ntfy(`🍽️ طلب جلسة ${TABLE}`, buildMessage(cart, f)); }); // الإيصال صورة؛ إن فشل نص بسيط
   window.open(lastUrl, "_blank");
 };
