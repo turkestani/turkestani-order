@@ -64,6 +64,7 @@ h2{font-size:18px;margin:22px 0 8px}
 #billDlg .pm{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 #billDlg .pm label{padding:14px;border:2px solid var(--line);border-radius:12px;text-align:center;font-size:18px;font-weight:600}
 #billDlg .pm label:has(input:checked){border-color:var(--brand);background:rgba(156,47,26,.12)}
+#billDlg .pm input{width:auto;margin:0 6px}
 #billDlg .chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
 #billDlg .chips button{padding:10px 14px;border:1px solid var(--brand);border-radius:10px;background:none;color:var(--ink);font-size:17px}
 #billDlg input[type=number]{width:100%;padding:10px;font-size:18px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
@@ -211,6 +212,7 @@ const BOOTHS = 8; // عدد الجلسات
 const BOOTH_WHATSAPP = WHATSAPP; // رقم واتساب استقبال الجلسات (حاليًا نفس رقم المندوب؛ يفضّل رقم مستقل للاستقبال)
 const NTFY_TOPIC = "turk-booth-935df044c0905361"; // قناة تنبيه الموظف في تطبيق ntfy (سرّية: لا تشاركها)
 const TG_TOKEN = "9136469858:AAEr6kEi2LHGZzdgL2ka6t2bMSr7jeQ6sfQ", TG_CHAT = "102410297"; // بوت تيليجرام لتنبيه الموظف (مكشوف في الصفحة بموافقة المالك؛ يُلغى من BotFather /revoke إذا أُسيء)
+const BILL_TTL = 30; // دقائق: صلاحية فاتورة الجلسة بعد آخر طلب، ثم تبدأ فاتورة جديدة
 const CALL_COOLDOWN = 60; // ثوانٍ يجب انتظارها بين نداء وآخر من نفس الجلسة
 // لإخفاء أصناف: اكتب أسماءها كما هي في القائمة، مثال: const HIDE = ["شوربة", "خبز"];
 const HIDE = [];
@@ -661,7 +663,7 @@ function applyBoothUI() {
 }
 // ===== طلب الحساب: فاتورة الجلسة + شبكة/كاش =====
 const L = (a, e) => lang === "en" ? e : a;
-function boothRec() { const r = store.get("ord_booth_" + TABLE); return r && Date.now() - r.t < 5 * 3600 * 1000 ? r : { t: Date.now(), items: {} }; }
+function boothRec() { const r = store.get("ord_booth_" + TABLE); return r && Date.now() - r.t < BILL_TTL * 60000 ? r : { t: Date.now(), items: {} }; }
 function openBill() {
   const rec = boothRec(), items = Object.values(rec.items).filter(i => i.q), sub = total(rec.items), d = $("billDlg");
   let pay = "card", cash = 0;
